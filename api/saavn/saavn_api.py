@@ -25,6 +25,14 @@ class Saavn(MusicApi):
         self.session = Session()
         self._visit_site()
 
+    def get_most_relevant_song(self, prompt: str) -> Optional['Song']:
+        suggestions = self.get_suggestions(prompt)
+        if len(suggestions) == 0:
+            Saavn.logger.error(f'No song found for input: {prompt}')
+            return None
+        song = suggestions[0]
+        return song
+
     def get_song_from_prompt(self) -> Song:
         choice: Optional[int] = None
         suggestions = []
@@ -45,11 +53,11 @@ class Saavn(MusicApi):
         song_to_download = suggestions[choice - 1]
         return song_to_download
 
-    def get_suggestions(self, input_str: str) -> List[Song]:
-        Saavn.logger.info(f'Searching for song: {input_str}...')
+    def get_suggestions(self, prompt: str) -> List[Song]:
+        Saavn.logger.info(f'Searching for song: {prompt}...')
         params = {
             '__call': 'autocomplete.get',
-            'query': f'{quote(input_str)}',
+            'query': f'{quote(prompt)}',
             **Saavn.common_api_params
         }
 
