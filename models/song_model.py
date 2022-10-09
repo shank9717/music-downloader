@@ -1,8 +1,11 @@
 import datetime
 import logging
 import os
+from contextlib import contextmanager
+from io import BytesIO
 from typing import Optional, List
 
+from PIL import Image
 import requests
 
 from api.music_api import MusicApi
@@ -51,6 +54,15 @@ class Song:
                 if chunk:
                     f.write(chunk)
         Song.logger.info(f'Downloaded {download_file_path}')
+
+    @contextmanager
+    def get_image(self) -> Image:
+        r = requests.get(self.image)
+        image = Image.open(BytesIO(r.content))
+        try:
+            yield image
+        finally:
+            image.close()
 
     def __str__(self) -> str:
         return f'{self.title} - {self.description}'
