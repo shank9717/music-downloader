@@ -5,9 +5,9 @@ from urllib.parse import quote
 
 from requests import Session
 
-from api.music_api import MusicApi
-from api.saavn import headers
-from models.song_model import Song
+from module.api.music_api import MusicApi
+from module.api.saavn import headers
+from module.models.song_model import Song
 
 
 class Saavn(MusicApi):

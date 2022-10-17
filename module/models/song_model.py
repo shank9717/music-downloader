@@ -14,7 +14,7 @@ from mutagen.easyid3 import EasyID3
 from mutagen.id3 import ID3, APIC
 from mutagen.mp3 import MP3
 
-from api.music_api import MusicApi
+from module.api.music_api import MusicApi
 
 
 def create_folder_if_not_exist(folder_name: str) -> None:
@@ -35,6 +35,7 @@ class Song:
         self.song_id = song_id
         self.title = title
         self.image = image
+        self.full_image = re.sub(r'-\d{2,3}x\d{2,3}.(jpg|jpeg|png)', '-500x500.\\1', image)
         self.album = album
         self.url = url
         self.description = description
@@ -69,19 +70,22 @@ class Song:
 
     def _set_metadata(self, file: str) -> None:
         audio = MP3(file, ID3=ID3)
-        img_data = requests.get(self.image).content
-        img = Image.open(BytesIO(img_data))
-        img_type = img.get_format_mimetype()
-        audio.tags.add(
-            APIC(
-                encoding=3,
-                mime=img_type,
-                type=3,
-                desc=u'Cover',
-                data=img_data
+        try:
+            img_data = requests.get(self.full_image).content
+            img = Image.open(BytesIO(img_data))
+            img_type = img.get_format_mimetype()
+            audio.tags.add(
+                APIC(
+                    encoding=3,
+                    mime=img_type,
+                    type=3,
+                    desc=u'Cover',
+                    data=img_data
+                )
             )
-        )
-        audio.save()
+            audio.save()
+        except:
+            pass
         audio = EasyID3(file)
         if self.title:
             audio['title'] = self.title
@@ -95,7 +99,7 @@ class Song:
 
     @contextmanager
     def get_image(self) -> Image:
-        r = requests.get(self.image)
+        r = requests.get(self.full_image)
         image = Image.open(BytesIO(r.content))
         try:
             yield image
@@ -122,10 +126,10 @@ class Song:
         return re.sub(r'[-\s]+', '-', value).strip('-_')
 
     def _get_mp4_file_name(self):
-        return f'{self.slugify(self.description)}.mp4'
+        return f'{self.slugify(str(self))}.mp4'
 
     def _get_mp3_file_name(self):
-        return f'{self.slugify(self.description)}.mp3'
+        return f'{self.slugify(str(self))}.mp3'
 
     def _convert_to_mp3(self, download_file_path: str) -> str:
         new_path = os.path.join(Song.DOWNLOAD_PATH, self._get_mp3_file_name())
