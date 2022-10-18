@@ -14,7 +14,7 @@ from mutagen.easyid3 import EasyID3
 from mutagen.id3 import ID3, APIC
 from mutagen.mp3 import MP3
 
-from module.api.music_api import MusicApi
+from api.music_api import MusicApi
 
 
 def create_folder_if_not_exist(folder_name: str) -> None:
@@ -84,6 +84,7 @@ class Song:
                 )
             )
             audio.save()
+            img.close()
         except:
             pass
         audio = EasyID3(file)
