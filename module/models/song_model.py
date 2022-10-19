@@ -5,7 +5,7 @@ import re
 import unicodedata
 from contextlib import contextmanager
 from io import BytesIO
-from typing import Optional, List
+from typing import Optional, List, Tuple
 
 import requests
 from PIL import Image
@@ -31,7 +31,7 @@ class Song:
                  primary_artists: Optional[str] = None, singers: Optional[List[str]] = None,
                  language: Optional[str] = None, encrypted_media_url: Optional[str] = None,
                  duration: Optional[int] = None, release_date: Optional[datetime.datetime] = None,
-                 genre: Optional[str] = None):
+                 genre: Optional[str] = None, preview_url: Optional[str] = None):
         self.song_id = song_id
         self.title = title
         self.image = image
@@ -46,16 +46,28 @@ class Song:
         self.duration = duration
         self.release_date = release_date
         self.genre = genre
+        self.preview_url = preview_url
 
     def generate_download_url(self, music_api: MusicApi) -> str:
         return music_api.generate_download_url(self)
 
-    def download(self, music_api: MusicApi, file_name: str = None) -> None:
+    def get_song_preview(self, music_api: MusicApi) -> bytes:
+        if self.preview_url:
+            data = requests.get(self.preview_url)
+            return data.content
+        else:
+            download_file_path, song_data = self.get_song_data(music_api)
+            return self._sample_song(song_data)
+
+    def _sample_song(song_data: requests.Response) -> bytes:
+        '''
+        TODO: Implement logic to trim song
+        '''
+        return song_data.content
+
+    def download(self, music_api: MusicApi, file_name: Optional[str] = None) -> None:
         create_folder_if_not_exist(Song.DOWNLOAD_PATH)
-        url = self.generate_download_url(music_api)
-        file_name = file_name if file_name else self._get_mp4_file_name()
-        download_file_path = os.path.join(Song.DOWNLOAD_PATH, file_name)
-        song_data = requests.get(url)
+        download_file_path, song_data = self.get_song_data(music_api, file_name)
 
         Song.logger.info(f'Downloading {self} to file {download_file_path}')
         with open(download_file_path, 'wb') as f:
@@ -67,6 +79,13 @@ class Song:
         Song.logger.info(f'Converted to mp3: {new_path}')
         self._set_metadata(new_path)
         Song.logger.info(f'Added metadata to file {new_path}')
+
+    def get_song_data(self, music_api: MusicApi, file_name: Optional[str] = None) -> Tuple[str, requests.Response]:
+        url = self.generate_download_url(music_api)
+        file_name = file_name if file_name else self._get_mp4_file_name()
+        download_file_path = os.path.join(Song.DOWNLOAD_PATH, file_name)
+        song_data = requests.get(url)
+        return download_file_path, song_data
 
     def _set_metadata(self, file: str) -> None:
         audio = MP3(file, ID3=ID3)
