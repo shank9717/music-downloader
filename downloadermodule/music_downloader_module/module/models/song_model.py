@@ -59,7 +59,7 @@ class Song:
             download_file_path, song_data = self.get_song_data(music_api)
             return self._sample_song(song_data)
 
-    def _sample_song(song_data: requests.Response) -> bytes:
+    def _sample_song(self, song_data: requests.Response) -> bytes:
         '''
         TODO: Implement logic to trim song
         '''
