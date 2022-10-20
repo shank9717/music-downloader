@@ -14,7 +14,7 @@ from mutagen.easyid3 import EasyID3
 from mutagen.id3 import ID3, APIC
 from mutagen.mp3 import MP3
 
-from api.music_api import MusicApi
+from music_downloader_module.module.api.music_api import MusicApi
 
 
 def create_folder_if_not_exist(folder_name: str) -> None:
@@ -65,7 +65,7 @@ class Song:
         '''
         return song_data.content
 
-    def download(self, music_api: MusicApi, file_name: Optional[str] = None) -> None:
+    def download(self, music_api: MusicApi, file_name: Optional[str] = None) -> Optional[str]:
         create_folder_if_not_exist(Song.DOWNLOAD_PATH)
         download_file_path, song_data = self.get_song_data(music_api, file_name)
 
@@ -79,6 +79,7 @@ class Song:
         Song.logger.info(f'Converted to mp3: {new_path}')
         self._set_metadata(new_path)
         Song.logger.info(f'Added metadata to file {new_path}')
+        return os.path.abspath(new_path)
 
     def get_song_data(self, music_api: MusicApi, file_name: Optional[str] = None) -> Tuple[str, requests.Response]:
         url = self.generate_download_url(music_api)
