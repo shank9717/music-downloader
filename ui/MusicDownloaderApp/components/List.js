@@ -72,29 +72,52 @@ const SongOptions = (item) => {
         downloadFile();
     }, []);
 
+    const blobToBase64 = (blob) => {
+        return new Promise((resolve, _) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result);
+            reader.readAsDataURL(blob);
+        });
+    };
+
+    const downloadAndCopyFile = async () => {
+        const details = item;
+        const downloadUrl = 'http://localhost:8000/download';
+        let dataReceived = ""; 
+        let resp = await fetch(downloadUrl, {
+                method: "post",
+                body: JSON.stringify(details)
+            });
+        if (resp.status === 200) {
+            let contentDisposition = resp.headers.get("content-disposition");
+            const parts = contentDisposition.split(';');
+            const filename = parts[1].split('=')[1];
+            const data = await resp.blob();
+            const base64 = await blobToBase64(data);
+
+            try {
+                await StorageAccessFramework.createFileAsync('content://com.android.externalstorage.documents/tree/primary%3ADownload%2FEmojis/', filename, 'audio/mp3')
+                    .then(async (uri) => {
+                        await FileSystem.writeAsStringAsync(uri, base64, { encoding: FileSystem.EncodingType.Base64 });
+                    })
+                    .catch((e) => {
+                        console.error(e);
+                    });
+            } catch (e) {
+                console.error(e);
+            }
+        } else {
+            return Promise.reject("server")
+        }
+    }
+
     const copyFile = async () => {
-        let fileUri = FileSystem.documentDirectory + "small.mp3";
         let newUri = '/storage/emulated/0/Download/Emojis/small.mp3';
         console.log("Requesting permissions");
         const permissions = await StorageAccessFramework.requestDirectoryPermissionsAsync();
         console.log("Permission granted",  permissions.directoryUri);
         if (!permissions.granted) {
             return;
-        }
-        
-        console.log('Copying from : ' + fileUri);
-        console.log('Copying to : ' + newUri);
-        const base64 = await FileSystem.readAsStringAsync(fileUri, { encoding: 'base64' });
-        try {
-            await StorageAccessFramework.createFileAsync('content://com.android.externalstorage.documents/tree/primary%3ADownload%2FEmojis/', 'small.mp3', 'audio/mp3')
-                .then(async(uri) => {
-                    await FileSystem.writeAsStringAsync(uri, base64, { encoding: FileSystem.EncodingType.Base64 });
-                })
-                .catch((e) => {
-                    console.log(e);
-                });
-        } catch (e) {
-            throw new Error(e);
         }
     }
     
@@ -119,7 +142,8 @@ const SongOptions = (item) => {
 
             <TouchableOpacity>
                 <Feather name="download" size={20} color="#fff" onPress={() => {
-                        copyFile();                    
+                        
+                        downloadAndCopyFile();                    
                     }
                 }/>
             </TouchableOpacity>

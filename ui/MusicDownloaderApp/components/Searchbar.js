@@ -5,6 +5,31 @@ import { color } from "react-native-elements/dist/helpers";
 
 
 const SearchBar = (props) => {
+  
+  const modifySearch = async (searchedPhrase) => {
+    if (searchedPhrase === '') {
+      props.setResultData([]);
+      props.setResultPresent(false);
+      return;
+    }
+    let headers = new Headers();
+
+    headers.append('Access-Control-Allow-Origin', '*');
+
+    const apiResponse = await fetch(
+      "http://127.0.0.1:8000/search/" + searchedPhrase,
+      {method: 'GET', headers: headers}
+    );
+    const data = await apiResponse.json();
+    props.setResultData(data);
+
+    if (data.length == 0) {
+      props.setResultPresent(false);
+    } else {
+      props.setResultPresent(true);
+    }
+  };
+
   return (
     <KeyboardAvoidingView style={styles.container}>
       <KeyboardAvoidingView
@@ -24,7 +49,12 @@ const SearchBar = (props) => {
           style={styles.input}
           placeholder="Enter song name..."
           value={props.searchPhrase}
-          onChangeText={props.setSearchPhrase}
+          onChangeText={
+            (searchedPhrase) => {
+              props.setSearchPhrase(searchedPhrase);
+              modifySearch(searchedPhrase);
+            }
+          }
           placeholderTextColor='#808c8c'
           cursorColor={'#fff'}
           color='#fff'
@@ -76,5 +106,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginLeft: 10,
     width: "90%",
+    color: '#fff'
   },
 });

@@ -13,15 +13,21 @@ music_api: MusicApi = Saavn()
 
 
 def get_most_relevant_song(request: HttpRequest, name: str) -> JsonResponse:
-    if request.method == HttpRequest.GET:
+    if request.method == 'GET':
         song: Song = music_api.get_most_relevant_song(name)
         return JsonResponse(song.__dict__, safe=False)
 
 def get_suggestions(request: HttpRequest, prompt: str) -> JsonResponse:
-    if request.method == HttpRequest.GET:
+    if request.method == 'GET':
         songs: List[Song] = music_api.get_suggestions(prompt)
         if songs:
             return JsonResponse([song.__dict__ for song in songs], safe=False)
+        else:
+            return JsonResponse([])
+    elif request.method == 'OPTIONS':
+        response = HttpResponse()
+        response['Content-Type'] = 'application/json'
+        return response
 
 def generate_download_url(request: HttpRequest, song: Song) -> JsonResponse:
     raise NotImplementedError()
@@ -39,14 +45,19 @@ def validate_data(data: dict) -> dict:
 
 @csrf_exempt
 def download_song(request: HttpRequest) -> HttpResponse:
-    if request.method == HttpRequest.POST:
+    if request.method == 'POST':
         data = json.loads(request.body)
-        data = validate_data(data)
+        data = validate_data(data['item'])
         song: Song = Song(**data)
         path = song.download(music_api=music_api)
         
         wrapper = FileWrapper(open(path, 'rb'))
         response = HttpResponse(wrapper, content_type='text/plain')
+        response['Access-Control-Expose-Headers'] = 'Content-Disposition'
         response['Content-Disposition'] = 'attachment; filename=%s' % os.path.basename(path)
         response['Content-Length'] = os.path.getsize(path)
+        return response
+    elif request.method == 'OPTIONS':
+        response = HttpResponse()
+        response['Content-Disposition'] = 'attachment'
         return response
