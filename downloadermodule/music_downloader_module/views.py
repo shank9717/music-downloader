@@ -1,5 +1,7 @@
 import json
+import os
 from typing import List
+from wsgiref.util import FileWrapper
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render
 from .module.api.music_api import MusicApi
@@ -11,19 +13,24 @@ music_api: MusicApi = Saavn()
 
 
 def get_most_relevant_song(request: HttpRequest, name: str) -> JsonResponse:
-    song: Song = music_api.get_most_relevant_song(name)
-    return JsonResponse(song.__dict__, safe=False)
+    if request.method == HttpRequest.GET:
+        song: Song = music_api.get_most_relevant_song(name)
+        return JsonResponse(song.__dict__, safe=False)
 
 def get_suggestions(request: HttpRequest, prompt: str) -> JsonResponse:
-    songs: List[Song] = music_api.get_suggestions(prompt)
-    if songs:
-        return JsonResponse([song.__dict__ for song in songs], safe=False)
+    if request.method == HttpRequest.GET:
+        songs: List[Song] = music_api.get_suggestions(prompt)
+        if songs:
+            return JsonResponse([song.__dict__ for song in songs], safe=False)
 
 def generate_download_url(request: HttpRequest, song: Song) -> JsonResponse:
     raise NotImplementedError()
 
 def validate_data(data: dict) -> dict:
-    allowed_keys = ['song_id', 'title', 'image', 'album', 'url', 'description', 'primary_artists', 'singers', 'language', 'encrypted_media_url', 'duration', 'release_date', 'genre', 'preview_url']
+    allowed_keys = ['song_id', 'title', 'image', 'album', 'url', 
+                    'description', 'primary_artists', 'singers', 
+                    'language', 'encrypted_media_url', 'duration', 
+                    'release_date', 'genre', 'preview_url']
     new_data = {}
     for key in data:
         if key in allowed_keys:
@@ -31,12 +38,15 @@ def validate_data(data: dict) -> dict:
     return new_data
 
 @csrf_exempt
-def download_song(request: JsonResponse) -> JsonResponse:
-    data = json.loads(request.body)
-    data = validate_data(data)
-    song: Song = Song(**data)
-    path = song.download(music_api=music_api)
-    return JsonResponse({
-        'download_path': path
-    })
-    
+def download_song(request: HttpRequest) -> HttpResponse:
+    if request.method == HttpRequest.POST:
+        data = json.loads(request.body)
+        data = validate_data(data)
+        song: Song = Song(**data)
+        path = song.download(music_api=music_api)
+        
+        wrapper = FileWrapper(open(path, 'rb'))
+        response = HttpResponse(wrapper, content_type='text/plain')
+        response['Content-Disposition'] = 'attachment; filename=%s' % os.path.basename(path)
+        response['Content-Length'] = os.path.getsize(path)
+        return response
