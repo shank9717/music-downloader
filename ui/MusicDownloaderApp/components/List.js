@@ -16,6 +16,7 @@ import * as MediaLibrary from 'expo-media-library';
 import * as FileSystem from 'expo-file-system';
 import * as Permissions from 'expo-permissions';
 import { StorageAccessFramework } from 'expo-file-system';
+import Constants from 'expo-constants';
 
 // definition of the Item, which will be rendered in the FlatList
 const Item = ({ title, album, artist, full_image }) => (
@@ -54,25 +55,7 @@ const SongOptions = (item) => {
         } : undefined;
     }, [sound]);
 
-    React.useEffect(() => {
-        const downloadFile = () => {
-            const filePath = 'https://file-examples.com/storage/fe4b4c6261634c76e91986b/2017/11/file_example_MP3_700KB.mp3';
-            FileSystem.downloadAsync(
-                filePath,
-                FileSystem.documentDirectory + 'small.mp3'
-              )
-                .then(({ uri }) => {
-                  console.log('Finished downloading to ', uri);
-                })
-                .catch(error => {
-                  console.error(error);
-                });
-              
-        }
-        downloadFile();
-    }, []);
-
-    const blobToBase64 = (blob) => {
+    const blobToBase64 = async (blob) => {
         return new Promise((resolve, _) => {
             const reader = new FileReader();
             reader.onloadend = () => resolve(reader.result);
@@ -82,7 +65,7 @@ const SongOptions = (item) => {
 
     const downloadAndCopyFile = async () => {
         const details = item;
-        const downloadUrl = 'http://localhost:8000/download';
+        const downloadUrl = Constants.expoConfig.extra.API_URL + '/download';
         let dataReceived = ""; 
         let resp = await fetch(downloadUrl, {
                 method: "post",
@@ -93,7 +76,8 @@ const SongOptions = (item) => {
             const parts = contentDisposition.split(';');
             const filename = parts[1].split('=')[1];
             const data = await resp.blob();
-            const base64 = await blobToBase64(data);
+            let base64 = await blobToBase64(data);
+            base64 = base64.substr(base64.indexOf(',')+1)
 
             try {
                 await StorageAccessFramework.createFileAsync('content://com.android.externalstorage.documents/tree/primary%3ADownload%2FEmojis/', filename, 'audio/mp3')

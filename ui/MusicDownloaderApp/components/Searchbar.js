@@ -2,7 +2,7 @@ import React from "react";
 import { StyleSheet, TextInput, View, Keyboard, Button, KeyboardAvoidingView } from "react-native";
 import { Feather, Entypo } from "@expo/vector-icons";
 import { color } from "react-native-elements/dist/helpers";
-
+import Constants from 'expo-constants';
 
 const SearchBar = (props) => {
   
@@ -17,7 +17,7 @@ const SearchBar = (props) => {
     headers.append('Access-Control-Allow-Origin', '*');
 
     const apiResponse = await fetch(
-      "http://127.0.0.1:8000/search/" + searchedPhrase,
+      Constants.expoConfig.extra.API_URL + '/search/' + searchedPhrase,
       {method: 'GET', headers: headers}
     );
     const data = await apiResponse.json();
