@@ -66,7 +66,8 @@ const SearchBar = (props) => {
 
         {props.clicked && (
           <Entypo name="cross" size={16} color="#fff" style={{ padding: 1 }} onPress={() => {
-            props.setSearchPhrase("")
+            props.setSearchPhrase("");
+            props.setResultPresent(false);
           }} />
         )}
       </KeyboardAvoidingView>
