@@ -33,6 +33,9 @@ const Home = () => {
         searchPhrase={searchPhrase}
         data={resultData}
         setClicked={setClicked}
+        onStartShouldSetResponder={() => {
+            setClicked(false);
+        }}
       />}
 
       {!resultPresent && <Text style={styles.empty_result}>Nothing to see here...</Text>}

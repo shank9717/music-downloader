@@ -7,6 +7,7 @@ import {
     SafeAreaView,
     KeyboardAvoidingView,
     TouchableOpacity,
+    ScrollView,
 } from "react-native";
 import { moderateScale } from 'react-native-size-matters';
 import { Image } from "react-native-elements";
@@ -39,9 +40,8 @@ const SongOptions = (item) => {
     const [sound, setSound] = React.useState();
 
     async function playSound() {
-        console.log('Loading Sound');
-        console.log(item['item']['preview_url'])
-        const { sound } = await Audio.Sound.createAsync( require('../assets/Hello.mp3') );
+        const preview_url = item['item']['preview_url'];
+        const { sound } = await Audio.Sound.createAsync( {uri: preview_url} );
         setSound(sound);
 
         console.log('Playing Sound');
@@ -65,6 +65,7 @@ const SongOptions = (item) => {
     };
 
     const downloadAndCopyFile = async () => {
+        console.log('Downloading song..');
         const details = item;
         const downloadUrl = Constants.expoConfig.extra.API_URL + '/download';
         let dataReceived = ""; 
@@ -84,6 +85,8 @@ const SongOptions = (item) => {
                 await StorageAccessFramework.createFileAsync('content://com.android.externalstorage.documents/tree/primary%3ADownload%2FEmojis/', filename, 'audio/mp3')
                     .then(async (uri) => {
                         await FileSystem.writeAsStringAsync(uri, base64, { encoding: FileSystem.EncodingType.Base64 });
+                        
+                        console.log('Downloaded song..');
                     })
                     .catch((e) => {
                         console.error(e);
@@ -107,7 +110,7 @@ const SongOptions = (item) => {
     }
     
     return (
-        <View style={styles.options_container}>
+        <ScrollView  keyboardShouldPersistTaps='handled' contentContainerStyle={styles.options_container}>
             <TouchableOpacity>
                 <Feather name={modes[currentMode]} size={20} color="#fff" onPress={() => {
                         setMode(currentMode == 1 ? 0 : 1);
@@ -132,7 +135,7 @@ const SongOptions = (item) => {
                     }
                 }/>
             </TouchableOpacity>
-        </View>
+        </ScrollView>
     )
 };
 
@@ -140,10 +143,10 @@ const SongOptions = (item) => {
 const List = (props) => {
     const renderItem = ({ item }) => {
         return (
-            <View style={styles.song_detail_view}>
+            <ScrollView  keyboardShouldPersistTaps='handled'  style={styles.song_detail_view}>
                 <Item title={item.title} album={item.album} artist={item.primary_artists} full_image={item.full_image} />
                 <SongOptions item={item} />
-            </View>
+            </ScrollView>
         );
     };
 
