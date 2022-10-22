@@ -9,7 +9,7 @@ import {
 import List from "../components/List";
 import SearchBar from "../components/Searchbar";
 
-const Home = () => {
+const Home = (props) => {
   const [searchPhrase, setSearchPhrase] = useState("");
   const [clicked, setClicked] = useState(false);
   const [resultData, setResultData] = useState([]);
@@ -29,6 +29,8 @@ const Home = () => {
       ></SearchBar>
 
       {resultPresent && <List
+        showSnackbar={props.showSnackbar}
+        setShowSnackbar={props.setShowSnackbar}
         style={styles.list_view}
         searchPhrase={searchPhrase}
         data={resultData}
@@ -39,6 +41,8 @@ const Home = () => {
       />}
 
       {!resultPresent && <Text style={styles.empty_result}>Nothing to see here...</Text>}
+
+      
     </KeyboardAvoidingView>
   );
 };
