@@ -2,7 +2,7 @@ version: "3.2"
 services:
     bot:
         container_name: music-downloader-service
-        image: 'shashankullas/music-downloader:1.0.0'
+        image: 'shashankullas/music-downloader:1.0.1'
         restart: always
         env_file:
             - .env
