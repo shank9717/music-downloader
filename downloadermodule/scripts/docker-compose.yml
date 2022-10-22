@@ -1,6 +1,6 @@
 version: "3.2"
 services:
-    bot:
+    music-downloader-service:
         container_name: music-downloader-service
         image: 'shashankullas/music-downloader:1.0.1'
         restart: always
