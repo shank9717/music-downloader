@@ -51,13 +51,17 @@ export default Home;
 
 const styles = StyleSheet.create({
   root: {
-    justifyContent: "center",
+    // justifyContent: "center",
     alignItems: "center",
+    flex: 1,
+    backgroundColor: '#2b2a33',
+    padding: 10
   },
   list_view: {
     margin: 0
   },
   empty_result: {
+    marginTop: 300,
     color: '#fff',
     margin: 0
   }

@@ -3,6 +3,7 @@ import { StyleSheet, TextInput, View, Keyboard, Button, KeyboardAvoidingView, To
 import { Feather, Entypo } from "@expo/vector-icons";
 import { color } from "react-native-elements/dist/helpers";
 import Constants from 'expo-constants';
+import { SafeAreaView } from "react-native";
 
 const SearchBar = (props) => {
   
@@ -32,9 +33,9 @@ const SearchBar = (props) => {
 
   return (
     
-    <KeyboardAvoidingView style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <KeyboardAvoidingView
+        <SafeAreaView
           style={
             !props.clicked
               ? styles.searchBar__unclicked
@@ -72,9 +73,9 @@ const SearchBar = (props) => {
               props.setResultPresent(false);
             }} />
           )}
-        </KeyboardAvoidingView>
+        </SafeAreaView>
       </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 

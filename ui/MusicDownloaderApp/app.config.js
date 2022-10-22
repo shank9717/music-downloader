@@ -7,8 +7,12 @@ const NODE_ENV = process.env["NODE_ENV"];
 export default ({config}) => {
     const appConfig = ({
       ...config,
+      
       version: process.env.VERSION,
       extra: {
+        eas: {
+          projectId: "6083c752-5998-46db-b84d-ac7fa4194717"
+        },
         API_URL,
         API_VERSION,
         NODE_ENV,
