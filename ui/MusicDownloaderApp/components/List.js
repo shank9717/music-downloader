@@ -40,6 +40,7 @@ const SongOptions = (item) => {
 
     async function playSound() {
         console.log('Loading Sound');
+        console.log(item['item']['preview_url'])
         const { sound } = await Audio.Sound.createAsync( require('../assets/Hello.mp3') );
         setSound(sound);
 

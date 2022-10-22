@@ -51,6 +51,7 @@ const styles = StyleSheet.create({
     margin: 0
   },
   empty_result: {
-    color: '#fff'
+    color: '#fff',
+    margin: 0
   }
 });
