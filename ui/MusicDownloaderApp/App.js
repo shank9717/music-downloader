@@ -7,8 +7,38 @@ import { MD3LightTheme as DefaultTheme, Provider as PaperProvider } from 'react-
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import { Feather, Entypo } from "@expo/vector-icons";
+// import {
+//   useFonts,
+//   OpenSans_300Light,
+//   OpenSans_400Regular,
+//   OpenSans_500Medium,
+//   OpenSans_600SemiBold,
+//   OpenSans_700Bold,
+//   OpenSans_800ExtraBold,
+//   OpenSans_300Light_Italic,
+//   OpenSans_400Regular_Italic,
+//   OpenSans_500Medium_Italic,
+//   OpenSans_600SemiBold_Italic,
+//   OpenSans_700Bold_Italic,
+//   OpenSans_800ExtraBold_Italic,
+// } from '@expo-google-fonts/open-sans';
 
 import Settings from './screens/Settings';
+
+// let [fontsLoaded] = useFonts({
+//   OpenSans_300Light,
+//   OpenSans_400Regular,
+//   OpenSans_500Medium,
+//   OpenSans_600SemiBold,
+//   OpenSans_700Bold,
+//   OpenSans_800ExtraBold,
+//   OpenSans_300Light_Italic,
+//   OpenSans_400Regular_Italic,
+//   OpenSans_500Medium_Italic,
+//   OpenSans_600SemiBold_Italic,
+//   OpenSans_700Bold_Italic,
+//   OpenSans_800ExtraBold_Italic,
+// });
 
 export async function GetAllPermissions() {
     try {
@@ -26,16 +56,21 @@ export async function GetAllPermissions() {
   }
 
 export default function App() {
-    const [searchPhrase, setSearchPhrase] = React.useState("");
+    // Text.defaultProps = Text.defaultProps || {};
+    // Text.defaultProps.style =  { fontFamily: 'OpenSans_400Regular' };
 
+    const [searchPhrase, setSearchPhrase] = React.useState("");
+    let bottomNavigatorConfigs = {
+        initialRouteName: "HomeScreen",
+        screenOptions: {
+            tabBarStyle: { height: 300 },
+        },
+    };
     const Tab = createBottomTabNavigator();
 
     function LogoTitle() {
         return (
-          <Image
-            style={{ width: 30, height: 30 }}
-            source={require('./assets/drawer.png')}
-          />
+          <Image style={{ width: 40, height: 40 }} source={ require('./assets/main-icon.png') }/>
         );
       }
 
@@ -62,42 +97,51 @@ export default function App() {
         GetAllPermissions() && <SafeAreaView style={styles.container}>
             <StatusBar style="auto" />
             <NavigationContainer>
-                <Tab.Navigator screenOptions={{
-                        tabBarActiveTintColor: '#e91e63',
+                <Tab.Navigator 
+                    screenOptions={{
+                        tabBarActiveTintColor: '#224e73',
                         headerStyle: { backgroundColor: '#224e73'},
                         headerTintColor: '#fff',
                         headerTitleStyle: {
                             fontWeight: 'bold',
                         },
-                        tabBarLabelPosition: 'centre'
-                    }}>
+                        tabBarLabelPosition: 'below-icon',
+                        tabBarStyle: {
+                          marginBottom: 100
+                        }
+                    }}
+                  >
                     <Tab.Screen 
                         name="Music Downloader" 
                         component={HomePage} 
                         options={{
                             tabBarStyle: {
                                 borderTopWidth: 0,
+                                marginBottom: 5
                             },
-                            tabBarLabel: 'Home',
+                            tabBarLabel: 'home',
                             headerTitle: (props) => <LogoTitle {...props} />,
-                            tabBarActiveBackgroundColor: '#25242b',
+                            tabBarActiveBackgroundColor: '#2b2a33',
                             tabBarInactiveBackgroundColor: '#2b2a33',
-                            tabBarShowLabel: false,
+                            tabBarShowLabel: true,
+                            tabBarLabelPosition: 'below-icon',
                             tabBarIcon: ({ color, size }) => (
-                                <Feather name="home" color={'#fff'} size={size} />
+                                <Feather name="home" color={color} size={size} />
                             )
                         }}/>
                     <Tab.Screen name="Settings" component={SettingsPage}  
                         options={{
                             tabBarStyle: {
                                 borderTopWidth: 0,
+                                marginBottom: 5
                             },
-                            tabBarActiveBackgroundColor: '#25242b',
+                            tabBarActiveBackgroundColor: '#2b2a33',
                             tabBarInactiveBackgroundColor: '#2b2a33',
-                            tabBarShowLabel: false,
-                            tabBarLabel: 'Settings',
+                            tabBarShowLabel: true,
+                            tabBarLabel: 'settings',
+                            tabBarLabelPosition: 'below-icon',
                             tabBarIcon: ({ color, size }) => (
-                                <Feather name="settings" color={'#fff'} size={size} />
+                                <Feather name="settings" color={color} size={size} />
                             )
                         }}/>
                 </Tab.Navigator>

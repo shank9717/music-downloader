@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   Text,
+  Image,
   SafeAreaView,
   KeyboardAvoidingView,
   ActivityIndicator,
@@ -18,7 +19,7 @@ const Home = (props) => {
   const [showSnackbar, setShowSnackbar] = React.useState(false);
 
   return (
-    <KeyboardAvoidingView style={styles.root}>
+    <SafeAreaView style={styles.root}>
       <SearchBar
         searchPhrase={searchPhrase}
         setSearchPhrase={setSearchPhrase}
@@ -42,12 +43,17 @@ const Home = (props) => {
         }}
       />}
 
-      {!resultPresent && <Text style={styles.empty_result}>Nothing to see here...</Text>}
+      {!resultPresent && 
+        <SafeAreaView style={{ alignContent: "center", alignSelf: "center", alignItems: "center" }}>
+          <Text style={styles.empty_result}>Nothing to see here...</Text>
+            <Image style={styles.empty_result_img} source={ require('../assets/no-results-3.png') }/>
+        </SafeAreaView>
+      }
 
       <Snackbar wrapperStyle={{ bottom: 0 }} style={styles.snackbar_style} visible={showSnackbar}>
           Downloaded Song...
       </Snackbar>
-    </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 
@@ -66,9 +72,16 @@ const styles = StyleSheet.create({
     margin: 0
   },
   empty_result: {
-    marginTop: 300,
+    marginTop: 150,
     color: '#fff',
+    fontSize: 16,
     margin: 0
+  },
+  empty_result_img: {
+    width: 150,
+    height: 150,
+    marginTop: 10,
+    resizeMode: 'stretch'
   },
   snackbar_style: {
     color: '#fff',

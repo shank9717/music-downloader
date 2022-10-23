@@ -88,7 +88,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flexDirection: "row",
     width: "100%",
-
+    elevation: 10,
+    shadowColor: '#52006A',
+    shadowOffset: {width: -2, height: 5},
+    shadowOpacity: 1,
+    shadowRadius: 3
   },
   searchBar__unclicked: {
     padding: 10,
