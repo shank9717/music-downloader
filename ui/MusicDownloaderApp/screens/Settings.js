@@ -10,12 +10,6 @@ import {
   View
 } from "react-native";
 
-import DocumentPicker, {
-    DirectoryPickerResponse,
-    DocumentPickerResponse,
-    isInProgress,
-    types,
-  } from 'react-native-document-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const setResult = (pick) => {
@@ -32,7 +26,6 @@ const settingsOptions = [
         title: 'Download path', 
         subTitle: 'Setup the path where you want to download your files to', 
         onPress: async () => {
-            DocumentPicker.pickDirectory().then(setResult).catch(handleError);
         }
     }
 ];
@@ -44,15 +37,15 @@ const Settings = (props) => {
                 {settingsOptions.map(({title, subTitle, onPress}, index) => (
                     <TouchableOpacity key={title} onPress={onPress}>
                         <View>
-                            <Text style={{fontSize: 17}} style={styles.label}>{title}</Text>
+                            <Text style={{fontSize: 20}} style={styles.label}>{title}</Text>
                                 {subTitle && (
-                                    <Text style={{fontSize: 14, opacity: 0.5, paddingTop: 5}}  style={styles.label}>
+                                    <Text style={{fontSize: 14, opacity: 0.5, paddingTop: 10, color: '#fff'}} >
                                     {subTitle}
                                     </Text>
                                 )}
                         </View>
 
-                        <View style={{height: 0.5, backgroundColor: 'grey'}} />
+                        <View style={{height: 0.2, marginTop: 10, backgroundColor: 'grey'}} />
                     </TouchableOpacity>
                 ))}
             </ScrollView>
@@ -72,6 +65,7 @@ const styles = StyleSheet.create({
         width: '100%',
     },
     label: {
-        color: '#fff'
+        color: '#fff',
+        fontSize: 18,
     }
 });

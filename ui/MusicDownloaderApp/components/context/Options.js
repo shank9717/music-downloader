@@ -21,6 +21,7 @@ import * as Permissions from 'expo-permissions';
 import { StorageAccessFramework } from 'expo-file-system';
 import Constants from 'expo-constants';
 
+
 const SongOptions = (props) => {
     const modes = ["play", "pause"];
     const [currentMode, setMode] = useState(0);

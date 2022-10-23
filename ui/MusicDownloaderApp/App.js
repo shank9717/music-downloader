@@ -2,19 +2,31 @@ import React from "react";
 
 import Home from './screens/Home';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Image, Text, TextInput, View, KeyboardAvoidingView, SafeAreaView } from 'react-native';
+import { StyleSheet, Image, Text, TextInput, View, KeyboardAvoidingView, SafeAreaView, PermissionsAndroid } from 'react-native';
 import { MD3LightTheme as DefaultTheme, Provider as PaperProvider } from 'react-native-paper';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import { Feather, Entypo } from "@expo/vector-icons";
 
 import Settings from './screens/Settings';
-import { Snackbar } from 'react-native-paper';
 
+export async function GetAllPermissions() {
+    try {
+      if (Platform.OS === "android") {
+        const userResponse = await PermissionsAndroid.requestMultiple([
+          PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+          PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE
+        ]);
+        return userResponse;
+      }
+    } catch (err) {
+        console.warn(err);
+    }
+    return null;
+  }
 
 export default function App() {
     const [searchPhrase, setSearchPhrase] = React.useState("");
-    const [showSnackbar, setShowSnackbar] = React.useState(false);
 
     const Tab = createBottomTabNavigator();
 
@@ -30,9 +42,7 @@ export default function App() {
     function HomePage({ navigation }) {
         return (
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <Home 
-                    showSnackbar={showSnackbar} 
-                    setShowSnackbar={setShowSnackbar}
+                <Home
                     searchPhrase={searchPhrase}
                     setSearchPhrase={setSearchPhrase} 
                 />
@@ -49,7 +59,7 @@ export default function App() {
       }
 
     return (
-        <SafeAreaView style={styles.container}>
+        GetAllPermissions() && <SafeAreaView style={styles.container}>
             <StatusBar style="auto" />
             <NavigationContainer>
                 <Tab.Navigator screenOptions={{
@@ -93,9 +103,6 @@ export default function App() {
                 </Tab.Navigator>
             </NavigationContainer>
 
-            <Snackbar wrapperStyle={{ bottom: 0 }} style={styles.snackbar_style} visible={showSnackbar}>
-                Downloaded Song...
-            </Snackbar>
         </SafeAreaView>
     );
 }

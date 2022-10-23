@@ -8,12 +8,14 @@ import {
 } from "react-native";
 import List from "../components/List";
 import SearchBar from "../components/Searchbar";
+import { Snackbar } from 'react-native-paper';
 
 const Home = (props) => {
   const [searchPhrase, setSearchPhrase] = useState("");
   const [clicked, setClicked] = useState(false);
   const [resultData, setResultData] = useState([]);
   const [resultPresent, setResultPresent] = useState(false);
+  const [showSnackbar, setShowSnackbar] = React.useState(false);
 
   return (
     <KeyboardAvoidingView style={styles.root}>
@@ -29,8 +31,8 @@ const Home = (props) => {
       ></SearchBar>
 
       {resultPresent && <List
-        showSnackbar={props.showSnackbar}
-        setShowSnackbar={props.setShowSnackbar}
+        showSnackbar={showSnackbar}
+        setShowSnackbar={setShowSnackbar}
         style={styles.list_view}
         searchPhrase={searchPhrase}
         data={resultData}
@@ -42,7 +44,9 @@ const Home = (props) => {
 
       {!resultPresent && <Text style={styles.empty_result}>Nothing to see here...</Text>}
 
-      
+      <Snackbar wrapperStyle={{ bottom: 0 }} style={styles.snackbar_style} visible={showSnackbar}>
+          Downloaded Song...
+      </Snackbar>
     </KeyboardAvoidingView>
   );
 };
@@ -55,7 +59,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flex: 1,
     backgroundColor: '#2b2a33',
-    padding: 10
+    padding: 10,
+    width: '100%'
   },
   list_view: {
     margin: 0
@@ -64,5 +69,11 @@ const styles = StyleSheet.create({
     marginTop: 300,
     color: '#fff',
     margin: 0
+  },
+  snackbar_style: {
+    color: '#fff',
+    backgroundColor: '#5a5c5e',
+    opacity: 0.7,
+    borderRadius: 9
   }
 });

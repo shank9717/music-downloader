@@ -73,7 +73,8 @@ const styles = StyleSheet.create({
         display: "flex",
         alignSelf: "flex-start",
         textAlign: "left",
-        marginLeft: moderateScale(20)
+        marginLeft: moderateScale(10),
+        marginRight: moderateScale(10)
     },
     item: {
         color: '#fff',

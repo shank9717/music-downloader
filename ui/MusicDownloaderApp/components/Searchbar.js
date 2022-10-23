@@ -8,11 +8,6 @@ import { SafeAreaView } from "react-native";
 const SearchBar = (props) => {
   
   const modifySearch = async (searchedPhrase) => {
-    if (searchedPhrase === '') {
-      props.setResultData([]);
-      props.setResultPresent(false);
-      return;
-    }
     let headers = new Headers();
 
     headers.append('Access-Control-Allow-Origin', '*');
@@ -55,7 +50,12 @@ const SearchBar = (props) => {
             onChangeText={
               (searchedPhrase) => {
                 props.setSearchPhrase(searchedPhrase);
-                modifySearch(searchedPhrase);
+                if (searchedPhrase === '') {
+                  props.setResultData([]);
+                  props.setResultPresent(false);
+                } else {
+                  modifySearch(searchedPhrase);
+                }
               }
             }
             placeholderTextColor='#808c8c'
