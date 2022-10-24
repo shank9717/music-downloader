@@ -79,7 +79,7 @@ const SongOptions = (props) => {
             base64 = base64.substr(base64.indexOf(',')+1)
 
             try {
-                await StorageAccessFramework.createFileAsync('content://com.android.externalstorage.documents/tree/primary%3ADownload%2FEmojis/', filename, 'audio/mp3')
+                await StorageAccessFramework.createFileAsync('content://com.android.externalstorage.documents/tree/primary%3AMusic/', filename, 'audio/mp3')
                     .then(async (uri) => {
                         await FileSystem.writeAsStringAsync(uri, base64, { encoding: FileSystem.EncodingType.Base64 });
                         

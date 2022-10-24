@@ -2,7 +2,7 @@ import React from "react";
 
 import Home from './screens/Home';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Image, Text, TextInput, View, KeyboardAvoidingView, SafeAreaView, PermissionsAndroid } from 'react-native';
+import { StyleSheet, Image, Text, TextInput, View, KeyboardAvoidingView, SafeAreaView, PermissionsAndroid, Dimensions } from 'react-native';
 import { MD3LightTheme as DefaultTheme, Provider as PaperProvider } from 'react-native-paper';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
@@ -60,12 +60,6 @@ export default function App() {
     // Text.defaultProps.style =  { fontFamily: 'OpenSans_400Regular' };
 
     const [searchPhrase, setSearchPhrase] = React.useState("");
-    let bottomNavigatorConfigs = {
-        initialRouteName: "HomeScreen",
-        screenOptions: {
-            tabBarStyle: { height: 300 },
-        },
-    };
     const Tab = createBottomTabNavigator();
 
     function LogoTitle() {
@@ -85,13 +79,37 @@ export default function App() {
         );
       }
 
-      function SettingsPage({ navigation }) {
+    function SettingsPage({ navigation }) {
         return (
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                 <Settings></Settings>
-          </View>
+        </View>
         );
-      }
+    }
+
+    const windowWidth = Dimensions.get('window').width;
+    let tabWidth = 250;
+
+    let tabStyle = {
+        borderTopWidth: 0,
+        borderWidth: 0,
+        width: tabWidth,
+        textAlign: 'center',
+        flexDirection: 'row',
+        marginLeft: (windowWidth - tabWidth)/2,
+        marginBottom: 50,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 12,
+        },
+        shadowOpacity: 0.4,
+        shadowRadius: 10,
+        elevation: 12,
+        borderRadius: 12,
+        borderColor: 'transparent',
+        overflow: 'hidden',
+    };
 
     return (
         GetAllPermissions() && <SafeAreaView style={styles.container}>
@@ -99,16 +117,12 @@ export default function App() {
             <NavigationContainer>
                 <Tab.Navigator 
                     screenOptions={{
-                        tabBarActiveTintColor: '#224e73',
+                        tabBarActiveTintColor: 'white',
                         headerStyle: { backgroundColor: '#224e73'},
                         headerTintColor: '#fff',
                         headerTitleStyle: {
                             fontWeight: 'bold',
                         },
-                        tabBarLabelPosition: 'below-icon',
-                        tabBarStyle: {
-                          marginBottom: 100
-                        }
                     }}
                   >
                     <Tab.Screen 
@@ -116,14 +130,13 @@ export default function App() {
                         component={HomePage} 
                         options={{
                             tabBarStyle: {
-                                borderTopWidth: 0,
-                                marginBottom: 5
+                                ...tabStyle
                             },
                             tabBarLabel: 'home',
                             headerTitle: (props) => <LogoTitle {...props} />,
                             tabBarActiveBackgroundColor: '#2b2a33',
                             tabBarInactiveBackgroundColor: '#2b2a33',
-                            tabBarShowLabel: true,
+                            tabBarShowLabel: false,
                             tabBarLabelPosition: 'below-icon',
                             tabBarIcon: ({ color, size }) => (
                                 <Feather name="home" color={color} size={size} />
@@ -132,12 +145,11 @@ export default function App() {
                     <Tab.Screen name="Settings" component={SettingsPage}  
                         options={{
                             tabBarStyle: {
-                                borderTopWidth: 0,
-                                marginBottom: 5
+                                ...tabStyle
                             },
                             tabBarActiveBackgroundColor: '#2b2a33',
                             tabBarInactiveBackgroundColor: '#2b2a33',
-                            tabBarShowLabel: true,
+                            tabBarShowLabel: false,
                             tabBarLabel: 'settings',
                             tabBarLabelPosition: 'below-icon',
                             tabBarIcon: ({ color, size }) => (
