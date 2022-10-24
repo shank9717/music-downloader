@@ -40,20 +40,20 @@ import Settings from './screens/Settings';
 //   OpenSans_800ExtraBold_Italic,
 // });
 
-export async function GetAllPermissions() {
-    try {
-      if (Platform.OS === "android") {
-        const userResponse = await PermissionsAndroid.requestMultiple([
-          PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
-          PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE
-        ]);
-        return userResponse;
-      }
-    } catch (err) {
-        console.warn(err);
-    }
-    return null;
-  }
+// export async function GetAllPermissions() {
+//     try {
+//       if (Platform.OS === "android") {
+//         const userResponse = await PermissionsAndroid.requestMultiple([
+//           PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+//           PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE
+//         ]);
+//         return userResponse;
+//       }
+//     } catch (err) {
+//         console.warn(err);
+//     }
+//     return null;
+//   }
 
 export default function App() {
     // Text.defaultProps = Text.defaultProps || {};
@@ -112,7 +112,7 @@ export default function App() {
     };
 
     return (
-        GetAllPermissions() && <SafeAreaView style={styles.container}>
+        <SafeAreaView style={styles.container}>
             <StatusBar style="auto" />
             <NavigationContainer>
                 <Tab.Navigator 
