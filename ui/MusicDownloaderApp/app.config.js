@@ -11,7 +11,7 @@ export default ({config}) => {
       version: process.env.VERSION,
       extra: {
         eas: {
-          projectId: "6083c752-5998-46db-b84d-ac7fa4194717"
+          projectId: "c3c2fb67-3ced-47fb-bc9d-9103d1239cf9"
         },
         API_URL,
         API_VERSION,
