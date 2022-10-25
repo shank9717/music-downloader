@@ -6,6 +6,7 @@ import {
     FlatList,
     SafeAreaView,
     KeyboardAvoidingView,
+    PermissionsAndroid,
     TouchableOpacity,
     Animated,
     ScrollView,
@@ -106,7 +107,7 @@ const SongOptions = (props) => {
     return (
         <ScrollView  keyboardShouldPersistTaps='handled' contentContainerStyle={styles.options_container}>
             <TouchableOpacity>
-                <Feather name={modes[currentMode]} size={20} color="#fff" onPress={() => {
+                <Feather name={modes[currentMode]} size={20} color="#9c88ff" onPress={() => {
                         setMode(currentMode == 1 ? 0 : 1);
                         if (currentMode == 0) {
                             playSound();
@@ -124,7 +125,7 @@ const SongOptions = (props) => {
                     <TouchableOpacity>
                         <ActivityIndicator
                             animating = {downloadInProgress}
-                            color = '#fff'
+                            color = '#9c88ff'
                             size = 'small'
                             hidesWhenStopped = "true"
                             style = {styles.activityIndicator}/>
@@ -136,8 +137,8 @@ const SongOptions = (props) => {
                 !downloadInProgress &&
                 <Animated.View>
                     <TouchableOpacity>
-                        <Feather name="download" size={20} color="#fff" onPress={async () => {   
-                                const granted = await PermissionsAndroid.check( PermissionsAndroid.PERMISSION.WRITE_EXTERNAL_STORAGE );
+                        <Feather name="download" size={20} color="#9c88ff" onPress={async () => {   
+                                const granted = await PermissionsAndroid.check( PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE );
                                 if (granted) {
                                     downloadAndCopyFile();   
                                 } else {
@@ -164,7 +165,7 @@ const styles = StyleSheet.create({
     options_container: {
         flexDirection: 'row',
         justifyContent: "space-evenly",
-        backgroundColor: 'grey',
+        backgroundColor: 'rgba(50, 51, 84, 1)',
         alignSelf: 'stretch',
         textAlign: 'center',
         width: "100%",
