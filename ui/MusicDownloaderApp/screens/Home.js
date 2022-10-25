@@ -61,7 +61,6 @@ export default Home;
 
 const styles = StyleSheet.create({
   root: {
-    // justifyContent: "center",
     alignItems: "center",
     flex: 1,
     backgroundColor: '#2b2a33',

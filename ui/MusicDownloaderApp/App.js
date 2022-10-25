@@ -64,7 +64,7 @@ export default function App() {
 
     function LogoTitle() {
         return (
-          <Image style={{ width: 40, height: 40 }} source={ require('./assets/main-icon.png') }/>
+          <Image style={{ width: 40, height: 40 }} source={ require('./assets/main-icon-new.png') }/>
         );
       }
 
@@ -88,7 +88,7 @@ export default function App() {
     }
 
     const windowWidth = Dimensions.get('window').width;
-    let tabWidth = 250;
+    let tabWidth = 160;
 
     let tabStyle = {
         borderTopWidth: 0,
@@ -97,7 +97,7 @@ export default function App() {
         textAlign: 'center',
         flexDirection: 'row',
         marginLeft: (windowWidth - tabWidth)/2,
-        marginBottom: 50,
+        marginBottom: 30,
         shadowColor: "#000",
         shadowOffset: {
             width: 0,
@@ -107,7 +107,9 @@ export default function App() {
         shadowRadius: 10,
         elevation: 12,
         borderRadius: 12,
-        borderColor: 'transparent',
+        backgroundColor: 'rgba(50, 51, 84, 1)',
+        borderColor: 'black',
+        borderWidth: 0.2,
         overflow: 'hidden',
     };
 
@@ -117,9 +119,8 @@ export default function App() {
             <NavigationContainer>
                 <Tab.Navigator 
                     screenOptions={{
-                        tabBarActiveTintColor: 'white',
-                        headerStyle: { backgroundColor: '#224e73'},
-                        headerTintColor: '#fff',
+                        headerStyle: { backgroundColor: '#323354'},
+                        headerTintColor: '#e7e4eb',
                         headerTitleStyle: {
                             fontWeight: 'bold',
                         },
@@ -134,27 +135,29 @@ export default function App() {
                             },
                             tabBarLabel: 'home',
                             headerTitle: (props) => <LogoTitle {...props} />,
-                            tabBarActiveBackgroundColor: '#2b2a33',
-                            tabBarInactiveBackgroundColor: '#2b2a33',
                             tabBarShowLabel: false,
                             tabBarLabelPosition: 'below-icon',
-                            tabBarIcon: ({ color, size }) => (
-                                <Feather name="home" color={color} size={size} />
-                            )
+                            tabBarActiveTintColor: '#9c88ff',
+                            tabBarInactiveTintColor: 'grey',
+                            tabBarIcon: ({ focused, color, size }) => {
+                                const newSize = focused ? 22 : 16;
+                                return <Feather name="home" color={color} size={newSize} />;
+                            }
                         }}/>
                     <Tab.Screen name="Settings" component={SettingsPage}  
                         options={{
                             tabBarStyle: {
                                 ...tabStyle
                             },
-                            tabBarActiveBackgroundColor: '#2b2a33',
-                            tabBarInactiveBackgroundColor: '#2b2a33',
                             tabBarShowLabel: false,
                             tabBarLabel: 'settings',
                             tabBarLabelPosition: 'below-icon',
-                            tabBarIcon: ({ color, size }) => (
-                                <Feather name="settings" color={color} size={size} />
-                            )
+                            tabBarActiveTintColor: '#9c88ff',
+                            tabBarInactiveTintColor: 'grey',
+                            tabBarIcon: ({ focused, color, size }) => {
+                                const newSize = focused ? 22 : 16;
+                                return <Feather name="settings" color={color} size={newSize} />;
+                            }
                         }}/>
                 </Tab.Navigator>
             </NavigationContainer>
@@ -166,13 +169,11 @@ export default function App() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#2b2a33',
-        // alignItems: 'center',
+        backgroundColor: 'rgb(43, 42, 51)',
         justifyContent: 'center',
-        // padding: 10
     },
     nav_style: {
-        backgroundColor: '#2b2a33',
+        backgroundColor: 'rgb(43, 42, 51)',
     },
     textmain: {
         color: '#fff'

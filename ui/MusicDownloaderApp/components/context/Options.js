@@ -136,7 +136,7 @@ const SongOptions = (props) => {
                 !downloadInProgress &&
                 <Animated.View>
                     <TouchableOpacity>
-                        <Feather name="download" size={20} color="#fff" onPress={() => {   
+                        <Feather name="download" size={20} color="#fff" onPress={async () => {   
                                 const granted = await PermissionsAndroid.check( PermissionsAndroid.PERMISSION.WRITE_EXTERNAL_STORAGE );
                                 if (granted) {
                                     downloadAndCopyFile();   
