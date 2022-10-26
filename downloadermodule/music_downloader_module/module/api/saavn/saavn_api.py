@@ -2,6 +2,7 @@ import datetime
 import logging
 from typing import Optional, List
 from urllib.parse import quote
+from html import unescape
 
 from requests import Session
 
@@ -65,13 +66,14 @@ class Saavn(MusicApi):
         all_suggestions = []
         for obj in response.json()['songs']['data']:
             song = Song(
-                song_id=obj['id'], title=obj['title'],
+                song_id=obj['id'],
+                title=unescape(obj['title']),
                 image=obj['image'] if 'image' in obj else None,
-                album=obj['album'] if 'album' in obj else obj['more_info']['album'],
+                album=unescape(obj['album']) if 'album' in obj else unescape(obj['more_info']['album']),
                 url=obj['url'] if 'url' in obj else None,
-                description=obj['description'] if 'description' in obj else obj['title'],
-                primary_artists=obj['more_info']['primary_artists'] if 'primary_artists' in obj['more_info'] else None,
-                singers=Saavn._get_all_singers(obj['more_info']['singers']) if 'singers' in obj['more_info'] else None,
+                description=unescape(obj['description']) if 'description' in obj else unescape(obj['title']),
+                primary_artists=unescape(obj['more_info']['primary_artists']) if 'primary_artists' in obj['more_info'] else None,
+                singers=Saavn._get_all_singers(unescape(obj['more_info']['singers'])) if 'singers' in obj['more_info'] else None,
                 language=obj['more_info']['language'] if 'language' in obj['more_info'] else None,
                 preview_url=obj['more_info']['vlink'] if 'vlink' in obj['more_info'] else None
             )
