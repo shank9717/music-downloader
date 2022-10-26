@@ -28,6 +28,12 @@ const SongOptions = (props) => {
     const [currentMode, setMode] = useState(0);
     const [sound, setSound] = React.useState();
     const [downloadInProgress, setDownloadInProgress] = React.useState(false);
+    const [playDisabled, setPlayDisabled] = React.useState(props['item']['preview_url'] == null);
+
+    // setPlayDisabled();
+    // let playDisabled = true;
+    const playBtnOpacity = playDisabled ? 0.5 : 1;
+    const playBtnColor = playDisabled ? 'grey': '#9c88ff';
 
     async function playSound() {
         const preview_url = props['item']['preview_url'];
@@ -122,7 +128,10 @@ const SongOptions = (props) => {
     return (
         <ScrollView  keyboardShouldPersistTaps='handled' contentContainerStyle={styles.options_container}>
             <TouchableOpacity>
-                <Feather name={modes[currentMode]} size={20} color="#9c88ff" onPress={() => {
+                <Feather style={{ opacity: playBtnOpacity, color: playBtnColor }} name={modes[currentMode]} size={20} color="#9c88ff" onPress={() => {
+                        if (playDisabled) {
+                            return;
+                        }
                         setMode(currentMode == 1 ? 0 : 1);
                         if (currentMode == 0) {
                             playSound();
