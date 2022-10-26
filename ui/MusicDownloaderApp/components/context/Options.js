@@ -80,15 +80,26 @@ const SongOptions = (props) => {
             base64 = base64.substr(base64.indexOf(',')+1)
 
             try {
-                await StorageAccessFramework.createFileAsync('content://com.android.externalstorage.documents/tree/primary%3AMusic/', filename, 'audio/mp3')
+                const permissions = await StorageAccessFramework.requestDirectoryPermissionsAsync('content://com.android.externalstorage.documents/tree/primary%3AMusic');
+                if (!permissions.granted) {
+                    props.setSnackbarProperties({visible: true, text: 'No permissions provided to write to path'});
+                    setTimeout(function () {
+                        props.setSnackbarProperties({visible: false, text: ''});
+                    }, 5000);
+                    return;
+                }
+                // await RNFS.writeFile(RNFS.DownloadDirectoryPath + '/' + filename, base64, { encoding: 'base64' });
+                await StorageAccessFramework.createFileAsync(permissions.directoryUri, filename, 'audio/mp3')
                     .then(async (uri) => {
                         await FileSystem.writeAsStringAsync(uri, base64, { encoding: FileSystem.EncodingType.Base64 });
-                        
+                        uri = decodeURIComponent(uri);
+                        let uriParts = uri.split(':');
+                        let simplePath = decodeURIComponent(uriParts[uriParts.length - 1]);
                         setDownloadInProgress(false);
                         console.log('Downloaded song..');
-                        props.setShowSnackbar(true);
+                        props.setSnackbarProperties({visible: true, text: 'Downloaded song to: ' + simplePath});
                         setTimeout(function () {
-                            props.setShowSnackbar(false);
+                            props.setSnackbarProperties({visible: false, text: 'Downloaded song...'});
                         }, 5000);
                     })
                     .catch((e) => {
@@ -100,6 +111,10 @@ const SongOptions = (props) => {
             }
         } else {
             setDownloadInProgress(false);
+            props.setSnackbarProperties({visible: true, text: 'Error while downloading song...'});
+            setTimeout(function () {
+                props.setSnackbarProperties({visible: false, text: ''});
+            }, 5000);
             return Promise.reject("server error");
         }
     }

@@ -40,7 +40,10 @@ const List = (props) => {
         return (
             <ScrollView  keyboardShouldPersistTaps='handled'  style={styles.song_detail_view}>
                 <Item title={item.title} album={item.album} artist={item.primary_artists} full_image={item.full_image} />
-                <SongOptions item={item} showSnackbar={props.showSnackbar} setShowSnackbar={props.setShowSnackbar} />
+                <SongOptions 
+                    item={item} 
+                    snackbarProperties={props.snackbarProperties} 
+                    setSnackbarProperties={props.setSnackbarProperties} />
             </ScrollView>
         );
     };

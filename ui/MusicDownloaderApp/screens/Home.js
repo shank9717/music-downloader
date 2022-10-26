@@ -16,7 +16,7 @@ const Home = (props) => {
   const [clicked, setClicked] = useState(false);
   const [resultData, setResultData] = useState([]);
   const [resultPresent, setResultPresent] = useState(false);
-  const [showSnackbar, setShowSnackbar] = React.useState(false);
+  const [snackbarProperties, setSnackbarProperties] = React.useState({visible: false, text: ''});
 
   return (
     <SafeAreaView style={styles.root}>
@@ -32,8 +32,8 @@ const Home = (props) => {
       ></SearchBar>
 
       {resultPresent && <List
-        showSnackbar={showSnackbar}
-        setShowSnackbar={setShowSnackbar}
+        snackbarProperties={snackbarProperties}
+        setSnackbarProperties={setSnackbarProperties}
         style={styles.list_view}
         searchPhrase={searchPhrase}
         data={resultData}
@@ -50,8 +50,8 @@ const Home = (props) => {
         </SafeAreaView>
       }
 
-      <Snackbar wrapperStyle={{ bottom: 0 }} style={styles.snackbar_style} visible={showSnackbar}>
-          Downloaded Song...
+      <Snackbar wrapperStyle={{ bottom: 0 }} style={styles.snackbar_style} visible={snackbarProperties.visible}>
+          { snackbarProperties.text }
       </Snackbar>
     </SafeAreaView>
   );
