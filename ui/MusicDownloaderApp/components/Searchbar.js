@@ -45,7 +45,7 @@ const SearchBar = (props) => {
           />
           <TextInput
             style={styles.input}
-            placeholder="Enter song name..."
+            placeholder="Search for a song..."
             value={props.searchPhrase}
             onChangeText={
               (searchedPhrase) => {
@@ -88,7 +88,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flexDirection: "row",
     width: "100%",
-    elevation: 10
+    elevation: 10,
+    fontFamily: 'Poppins-Light'
   },
   searchBar__unclicked: {
     padding: 10,
@@ -96,7 +97,8 @@ const styles = StyleSheet.create({
     width: "100%",
     backgroundColor: "#42414d",
     borderRadius: 15,
-    alignItems: "center"
+    alignItems: "center",
+    fontFamily: 'Poppins-Light'
   },
   searchBar__clicked: {
     padding: 10,
@@ -105,12 +107,14 @@ const styles = StyleSheet.create({
     backgroundColor: "#42414d",
     borderRadius: 15,
     alignItems: "center",
-    justifyContent: "space-evenly"
+    justifyContent: "space-evenly",
+    fontFamily: 'Poppins-Light'
   },
   input: {
     fontSize: 16,
     marginLeft: 10,
     width: "90%",
-    color: '#fff'
+    color: '#fff',
+    fontFamily: 'Poppins-Light'
   },
 });

@@ -74,7 +74,8 @@ const styles = StyleSheet.create({
     marginTop: 150,
     color: '#fff',
     fontSize: 16,
-    margin: 0
+    margin: 0,
+    fontFamily: 'Poppins-Light'
   },
   empty_result_img: {
     width: 150,

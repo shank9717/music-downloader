@@ -19,18 +19,27 @@ import * as Permissions from 'expo-permissions';
 import { StorageAccessFramework } from 'expo-file-system';
 import Constants from 'expo-constants';
 import SongOptions from './context/Options';
+import MarqueeText from 'react-native-marquee';
 
 // definition of the Item, which will be rendered in the FlatList
 const Item = ({ title, album, artist, full_image }) => (
     <KeyboardAvoidingView style={styles.item}>
         <Image
-            style={{ width: 50, height: 50, padding: 10 }}
+            style={{ width: 50, height: 50, padding: 10, marginTop: 5 }}
             source={{ uri: full_image }}
         />
         <View style={styles.song_details}>
             <Text style={styles.title}>{title}</Text>
-            <Text style={styles.details}>{artist}</Text>
-            <Text style={styles.details}>{album}</Text>
+            <MarqueeText 
+                style={styles.details}
+                speed={0.4}
+                marqueeOnStart={true}
+                loop={true}
+                delay={1000}
+            >
+                {artist}
+            </MarqueeText>
+            <MarqueeText style={styles.details}>{album}</MarqueeText>
         </View>
     </KeyboardAvoidingView>
 );
@@ -69,7 +78,8 @@ export default List;
 const styles = StyleSheet.create({
     song_detail_view: {
         marginBottom: moderateScale(10),
-        marginLeft: 5
+        marginLeft: 5,
+        fontFamily: 'Poppins-Light'
     },
     list__container: {
         height: "85%",
@@ -92,12 +102,15 @@ const styles = StyleSheet.create({
     title: {
         color: '#fff',
         fontSize: 16,
-        fontWeight: "bold",
-        marginBottom: 5,
+        marginBottom: 2,
         textAlign: "left",
+        fontFamily: 'Poppins-Bold'
     },
     details: {
         color: '#fff',
-        textAlign: "left"
+        textAlign: "left",
+        fontSize: 12,
+        fontFamily: 'Poppins-Light',
+        flexShrink: 1
     }
 });

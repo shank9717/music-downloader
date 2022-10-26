@@ -2,64 +2,39 @@ import React from "react";
 
 import Home from './screens/Home';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Image, Text, TextInput, View, KeyboardAvoidingView, SafeAreaView, PermissionsAndroid, Dimensions } from 'react-native';
+import { StyleSheet, Image, Text, TextInput, View, KeyboardAvoidingView, SafeAreaView, PermissionsAndroid, Dimensions, useCallback } from 'react-native';
 import { MD3LightTheme as DefaultTheme, Provider as PaperProvider } from 'react-native-paper';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import { Feather, Entypo } from "@expo/vector-icons";
-// import {
-//   useFonts,
-//   OpenSans_300Light,
-//   OpenSans_400Regular,
-//   OpenSans_500Medium,
-//   OpenSans_600SemiBold,
-//   OpenSans_700Bold,
-//   OpenSans_800ExtraBold,
-//   OpenSans_300Light_Italic,
-//   OpenSans_400Regular_Italic,
-//   OpenSans_500Medium_Italic,
-//   OpenSans_600SemiBold_Italic,
-//   OpenSans_700Bold_Italic,
-//   OpenSans_800ExtraBold_Italic,
-// } from '@expo-google-fonts/open-sans';
+import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
+
 
 import Settings from './screens/Settings';
 
-// let [fontsLoaded] = useFonts({
-//   OpenSans_300Light,
-//   OpenSans_400Regular,
-//   OpenSans_500Medium,
-//   OpenSans_600SemiBold,
-//   OpenSans_700Bold,
-//   OpenSans_800ExtraBold,
-//   OpenSans_300Light_Italic,
-//   OpenSans_400Regular_Italic,
-//   OpenSans_500Medium_Italic,
-//   OpenSans_600SemiBold_Italic,
-//   OpenSans_700Bold_Italic,
-//   OpenSans_800ExtraBold_Italic,
-// });
-
-// export async function GetAllPermissions() {
-//     try {
-//       if (Platform.OS === "android") {
-//         const userResponse = await PermissionsAndroid.requestMultiple([
-//           PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
-//           PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE
-//         ]);
-//         return userResponse;
-//       }
-//     } catch (err) {
-//         console.warn(err);
-//     }
-//     return null;
-//   }
+SplashScreen.preventAutoHideAsync();
 
 export default function App() {
-    // Text.defaultProps = Text.defaultProps || {};
-    // Text.defaultProps.style =  { fontFamily: 'OpenSans_400Regular' };
+    const [fontsLoaded] = useFonts({
+        'Inter-Black': require('./assets/fonts/Inter-Black.otf'),
+        'Poppins-Light': require('./assets/fonts/Poppins-Light.ttf'),
+        'Poppins-Bold': require('./assets/fonts/Poppins-Bold.ttf'),
+        'Poppins-Italic': require('./assets/fonts/Poppins-Italic.ttf'),
+    });
 
     const [searchPhrase, setSearchPhrase] = React.useState("");
+    const onLayoutRootView = React.useCallback(async () => {
+        if (fontsLoaded) {
+            await SplashScreen.hideAsync();
+        }
+        }, [fontsLoaded]
+    );
+
+    if (!fontsLoaded) {
+        return null;
+    }
+
     const Tab = createBottomTabNavigator();
 
     function LogoTitle() {
@@ -70,7 +45,7 @@ export default function App() {
 
     function HomePage({ navigation }) {
         return (
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <View onLayout={onLayoutRootView} style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                 <Home
                     searchPhrase={searchPhrase}
                     setSearchPhrase={setSearchPhrase} 
@@ -111,6 +86,7 @@ export default function App() {
         borderColor: 'black',
         borderWidth: 0.2,
         overflow: 'hidden',
+        fontFamily: 'Inter-Black'
     };
 
     return (
@@ -122,7 +98,7 @@ export default function App() {
                         headerStyle: { backgroundColor: '#323354'},
                         headerTintColor: '#e7e4eb',
                         headerTitleStyle: {
-                            fontWeight: 'bold',
+                            fontFamily: 'Inter-Black'
                         },
                     }}
                   >
