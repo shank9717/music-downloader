@@ -39,7 +39,8 @@ export default function App() {
 
     function LogoTitle() {
         return (
-          <Image style={{ width: 40, height: 40 }} source={ require('./assets/main-icon-new.png') }/>
+        //   <Image style={{ width: 40, height: 40 }} source={ require('./assets/main-icon-new.png') }/>
+          <Text style={ styles.logoTitle }>Planck Tune - Music Downloader</Text>
         );
       }
 
@@ -76,7 +77,7 @@ export default function App() {
         shadowColor: "#000",
         shadowOffset: {
             width: 0,
-            height: 12,
+            height: 8,
         },
         shadowOpacity: 0.4,
         shadowRadius: 10,
@@ -156,5 +157,12 @@ const styles = StyleSheet.create({
     },
     snackbar_style: {
         color: '#fff'
+    },
+    logoTitle: {
+        marginTop: 5,
+        fontSize: 18,
+        fontFamily: 'Poppins-Bold',
+        color: '#ffffffdd',
+        
     }
 });

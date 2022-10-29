@@ -189,7 +189,9 @@ const styles = StyleSheet.create({
     options_container: {
         flexDirection: 'row',
         justifyContent: "space-evenly",
-        backgroundColor: 'rgba(50, 51, 84, 1)',
+        // backgroundColor: 'rgba(50, 51, 84, 1)',
+        borderColor: '#9c88ff',
+        borderTopWidth: 0.5,
         alignSelf: 'stretch',
         textAlign: 'center',
         width: "100%",

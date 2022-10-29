@@ -11,6 +11,7 @@ const SearchBar = (props) => {
     let headers = new Headers();
 
     headers.append('Access-Control-Allow-Origin', '*');
+    headers.append("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 
     const apiResponse = await fetch(
       Constants.expoConfig.extra.API_URL + '/search/' + searchedPhrase,
@@ -29,7 +30,7 @@ const SearchBar = (props) => {
   return (
     
     <SafeAreaView style={styles.container}>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      {/* <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}> */}
         <SafeAreaView
           style={
             !props.clicked
@@ -74,7 +75,7 @@ const SearchBar = (props) => {
             }} />
           )}
         </SafeAreaView>
-      </TouchableWithoutFeedback>
+      {/* </TouchableWithoutFeedback> */}
     </SafeAreaView>
   );
 };
