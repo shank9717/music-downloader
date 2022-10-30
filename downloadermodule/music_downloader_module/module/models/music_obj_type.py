@@ -1,0 +1,2 @@
+class MusicObjectType:
+    pass

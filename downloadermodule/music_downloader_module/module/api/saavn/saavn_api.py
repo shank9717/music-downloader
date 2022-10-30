@@ -1,13 +1,14 @@
 import datetime
 import logging
+from html import unescape
 from typing import Optional, List
 from urllib.parse import quote
-from html import unescape
 
 from requests import Session
 
 from music_downloader_module.module.api.music_api import MusicApi
 from music_downloader_module.module.api.saavn import headers
+from music_downloader_module.module.models.album_model import Album
 from music_downloader_module.module.models.song_model import Song
 
 
@@ -54,6 +55,19 @@ class Saavn(MusicApi):
         song_to_download = suggestions[choice - 1]
         return song_to_download
 
+    def get_detail_album_info(self, album_token_id: str) -> dict:
+        Saavn.logger.info(f'Searching for album: {album_token_id}...')
+        params = {
+            '__call': 'webapi.get',
+            'token': album_token_id,
+            'type': 'album',
+            'includeMetaTags': '0',
+            **Saavn.common_api_params
+        }
+
+        response = self.session.get(Saavn.API_URL, headers=headers.api_headers, params=params)
+        return response.json()
+
     def get_suggestions(self, prompt: str) -> List[Song]:
         Saavn.logger.info(f'Searching for song: {prompt}...')
         params = {
@@ -64,19 +78,12 @@ class Saavn(MusicApi):
 
         response = self.session.get(Saavn.API_URL, headers=headers.api_headers, params=params)
         all_suggestions = []
+        for obj in response.json()['albums']['data']:
+            album = self._parse_obj_as_album(obj)
+            all_suggestions.append(album)
+
         for obj in response.json()['songs']['data']:
-            song = Song(
-                song_id=obj['id'],
-                title=unescape(obj['title']),
-                image=obj['image'] if 'image' in obj else None,
-                album=unescape(obj['album']) if 'album' in obj else unescape(obj['more_info']['album']),
-                url=obj['url'] if 'url' in obj else None,
-                description=unescape(obj['description']) if 'description' in obj else unescape(obj['title']),
-                primary_artists=unescape(obj['more_info']['primary_artists']) if 'primary_artists' in obj['more_info'] else None,
-                singers=Saavn._get_all_singers(unescape(obj['more_info']['singers'])) if 'singers' in obj['more_info'] else None,
-                language=obj['more_info']['language'] if 'language' in obj['more_info'] else None,
-                preview_url=obj['more_info']['vlink'] if 'vlink' in obj['more_info'] else None
-            )
+            song = self._parse_obj_as_song(obj)
             all_suggestions.append(song)
 
         return all_suggestions
@@ -148,6 +155,36 @@ class Saavn(MusicApi):
 
         self.session.get(Saavn.API_URL, headers=headers.api_headers, params=params)
 
+    def _parse_obj_as_album(self, obj: dict) -> Album:
+        return Album(
+            album_id=obj['id'],
+            token_id=self._get_token_id(obj),
+            title=unescape(obj['title']),
+            image=obj['image'] if 'image' in obj else None,
+            description=unescape(obj['description']) if 'description' in obj else None,
+            artist=unescape(obj['more_info']['music']) if 'music' in obj['more_info'] else unescape(obj['music']),
+            url=self.get_album_url(obj),
+            year=int(obj['more_info']['year']) if 'year' in obj['more_info'] else None,
+            song_pids=self._get_all_pids(obj['more_info']['song_pids']) if 'song_pids' in obj['more_info'] else [],
+            songs=self._get_songs(self._get_token_id(obj))
+        )
+
+    def _parse_obj_as_song(self, obj: dict) -> Song:
+        return Song(
+            song_id=obj['id'],
+            title=unescape(obj['title']),
+            image=obj['image'] if 'image' in obj else None,
+            album=unescape(obj['album']) if 'album' in obj else unescape(obj['more_info']['album']),
+            url=obj['url'] if 'url' in obj else obj['perma_url'],
+            description=unescape(obj['description']) if 'description' in obj else unescape(obj['title']),
+            primary_artists=self._get_primary_artist_from_song_obj(obj),
+            singers=self._get_all_singers_from_song_obj(obj),
+            release_date=self._get_date(
+                obj['more_info']['release_date'] if 'release_date' in obj['more_info'] else None),
+            language=obj['more_info']['language'] if 'language' in obj['more_info'] else obj['language'],
+            preview_url=obj['more_info']['vlink'] if 'vlink' in obj['more_info'] else None
+        )
+
     def _visit_site(self) -> None:
         self.session.get(Saavn.BASE_URL, headers=headers.visit_site)
 
@@ -158,3 +195,45 @@ class Saavn(MusicApi):
     @staticmethod
     def _format_date(date_str: str) -> datetime.datetime:
         return datetime.datetime.strptime(date_str, '%Y-%m-%d')
+
+    def _get_songs(self, album_token_id: str) -> List[Song]:
+        obj = self.get_detail_album_info(album_token_id)
+        album_songs = []
+        for song_obj in obj['list']:
+            album_songs.append(self._parse_obj_as_song(song_obj))
+
+        return album_songs
+
+    def _get_token_id(self, obj: dict) -> str:
+        url = self.get_album_url(obj)
+        return url.split('/')[-1]
+
+    @staticmethod
+    def get_album_url(obj: dict) -> str:
+        url = obj['perma_url'] if 'perma_url' in obj else obj['url']
+        return url
+
+    @staticmethod
+    def _get_date(date_str: str) -> datetime.datetime:
+        return datetime.datetime.strptime(date_str, '%Y-%m-%d')
+
+    @staticmethod
+    def _get_primary_artist_from_song_obj(obj: dict) -> str:
+        detailed_info = obj['more_info']
+        if 'primary_artists' in detailed_info:
+            return unescape(detailed_info['primary_artists'])
+        if 'artistMap' in detailed_info and 'primary_artists' in detailed_info['artistMap']:
+            return detailed_info['artistMap']['primary_artists'][0]['name']
+
+    @staticmethod
+    def _get_all_singers_from_song_obj(obj: dict) -> List[str]:
+        detailed_info = obj['more_info']
+        if 'singers' in detailed_info:
+            return Saavn._get_all_singers(unescape(detailed_info['singers']))
+        if 'artistMap' in detailed_info and 'artists' in detailed_info['artistMap']:
+            all_artists: list = detailed_info['artistMap']['artists']
+            return list(map(lambda artist: artist['name'], all_artists))
+
+    @staticmethod
+    def _get_all_pids(pids: str) -> List[str]:
+        return [pid.strip() for pid in pids.split(',')]

@@ -1,6 +1,6 @@
 import logging
 
-from downloadermodule.music_downloader_module.module.api.saavn.saavn_api import Saavn
+from music_downloader_module.module.api.saavn.saavn_api import Saavn
 
 
 def main():

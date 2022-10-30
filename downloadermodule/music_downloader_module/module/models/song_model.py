@@ -16,13 +16,15 @@ from mutagen.mp3 import MP3
 
 from music_downloader_module.module.api.music_api import MusicApi
 
+from music_downloader_module.module.models.music_obj_type import MusicObjectType
+
 
 def create_folder_if_not_exist(folder_name: str) -> None:
     if not os.path.isdir(folder_name):
         os.makedirs(folder_name)
 
 
-class Song:
+class Song(MusicObjectType):
     logger = logging.getLogger('Song')
     DOWNLOAD_PATH = 'Downloads/'
 
@@ -60,9 +62,7 @@ class Song:
             return self._sample_song(song_data)
 
     def _sample_song(self, song_data: requests.Response) -> bytes:
-        '''
-        TODO: Implement logic to trim song
-        '''
+        # TODO: Implement logic to trim song
         return song_data.content
 
     def download(self, music_api: MusicApi, file_name: Optional[str] = None) -> Optional[str]:
