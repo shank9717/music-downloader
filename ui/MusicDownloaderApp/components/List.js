@@ -85,7 +85,9 @@ const List = (props) => {
         );
     };
 
-    let modifiedData = props.data.map((item) => {
+    let modifiedData = props.data.filter((item) => {
+        return item.song_id != null;
+    }).map((item) => {
         item.setModalVisible = setModalVisible;
         return item;
     });
