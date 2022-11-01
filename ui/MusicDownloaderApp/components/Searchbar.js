@@ -18,7 +18,6 @@ const SearchBar = (props) => {
       {method: 'GET', headers: headers}
     );
     const data = await apiResponse.json();
-    console.log(data);
 
     // let data = [
     //   {
