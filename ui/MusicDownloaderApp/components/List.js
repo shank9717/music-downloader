@@ -91,7 +91,7 @@ const List = (props) => {
     });
 
     return (
-        <SafeAreaView
+        <ScrollView
             onStartShouldSetResponder={() => {
                 props.setClicked(false);
             }}
@@ -100,7 +100,7 @@ const List = (props) => {
             <FlatList
                 data={modifiedData}
                 renderItem={renderItem}
-                keyExtractor={(item) => item.song_id}
+                keyExtractor={(item) => item.song_id || item.album_id}
             />
 
             <Modal
@@ -128,7 +128,7 @@ const List = (props) => {
                     </BlurView>
                 </SafeAreaView>
             </Modal>
-        </SafeAreaView>
+        </ScrollView>
     );
 };
 
@@ -142,26 +142,30 @@ const styles = StyleSheet.create({
         borderColor: '#9c88ff',
         borderWidth: 0.5,
         borderRadius: 5,
-        paddingRight: 5,
+        alignSelf: 'center',
+        width: moderateScale(300),
     },
     list__container: {
+        width: '100%',
         height: "85%",
         display: "flex",
         alignSelf: "flex-start",
-        textAlign: "left",
-        marginLeft: 10,
-        marginRight: 10
+        textAlign: "left"
     },
     item: {
+        overflow: 'hidden',
+        padding: 5,
         color: '#fff',
         justifyContent: "flex-start",
         backfaceVisibility: "hidden",
         flexDirection: 'row',
-        padding: 5,
-        marginBottom: 10
+        marginBottom: 10,
+        width: '100%'
     },
     song_details: {
-        marginLeft: 10
+        paddingRight: 5,
+        paddingLeft: 10,
+        width: moderateScale(300) - 60,
     },
     title: {
         color: '#fff',

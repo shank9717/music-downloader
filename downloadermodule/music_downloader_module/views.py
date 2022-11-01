@@ -4,6 +4,8 @@ from typing import List
 from wsgiref.util import FileWrapper
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render
+
+from music_downloader_module.module.models.music_obj_type import MusicObjectType
 from .module.api.music_api import MusicApi
 from .module.api.saavn.saavn_api import Saavn
 from .module.models.song_model import Song
@@ -19,9 +21,9 @@ def get_most_relevant_song(request: HttpRequest, name: str) -> JsonResponse:
 
 def get_suggestions(request: HttpRequest, prompt: str) -> JsonResponse:
     if request.method == 'GET':
-        songs: List[Song] = music_api.get_suggestions(prompt)
-        if songs:
-            return JsonResponse([song.__dict__ for song in songs], safe=False)
+        music_objs: List[MusicObjectType] = music_api.get_suggestions(prompt)
+        if music_objs:
+            return JsonResponse([music_obj.to_json() for music_obj in music_objs], safe=False)
         else:
             return JsonResponse([])
     elif request.method == 'OPTIONS':

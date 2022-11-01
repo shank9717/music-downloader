@@ -9,6 +9,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { Feather, Entypo } from "@expo/vector-icons";
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
+import { moderateScale } from 'react-native-size-matters';
 
 
 import Settings from './screens/Settings';
@@ -73,7 +74,7 @@ export default function App() {
         textAlign: 'center',
         flexDirection: 'row',
         marginLeft: (windowWidth - tabWidth)/2,
-        marginBottom: 30,
+        marginBottom: moderateScale(20),
         shadowColor: "#000",
         shadowOffset: {
             width: 0,

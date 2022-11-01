@@ -215,7 +215,7 @@ class Saavn(MusicApi):
 
     @staticmethod
     def _get_date(date_str: str) -> datetime.datetime:
-        return datetime.datetime.strptime(date_str, '%Y-%m-%d')
+        return datetime.datetime.strptime(date_str, '%Y-%m-%d') if date_str else None
 
     @staticmethod
     def _get_primary_artist_from_song_obj(obj: dict) -> str:

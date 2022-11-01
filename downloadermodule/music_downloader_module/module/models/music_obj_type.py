@@ -1,2 +1,3 @@
 class MusicObjectType:
-    pass
+    def to_json(self) -> dict:
+        raise NotImplementedError('')

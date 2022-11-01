@@ -27,3 +27,8 @@ class Album(MusicObjectType):
         self.preview_url = preview_url
         self.song_pids = song_pids
         self.songs = songs
+
+    def to_json(self) -> dict:
+        dict_items = self.__dict__
+        dict_items['songs'] = [song.to_json() for song in self.songs]
+        return dict_items

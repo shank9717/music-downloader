@@ -159,3 +159,6 @@ class Song(MusicObjectType):
         video.close()
         os.remove(download_file_path)
         return new_path
+
+    def to_json(self) -> dict:
+        return self.__dict__
