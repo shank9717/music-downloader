@@ -33,7 +33,7 @@ const settingsOptions = [
 const Settings = (props) => {
     return (
         <SafeAreaView style={styles.container}>
-            <ScrollView>
+            <ScrollView nestedScrollEnabled={true}>
                 {settingsOptions.map(({title, subTitle, onPress}, index) => (
                     <TouchableOpacity key={title} onPress={onPress}>
                         <View>

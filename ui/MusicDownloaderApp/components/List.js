@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
     StyleSheet,
+    Animated,
     Text,
     View,
     FlatList,
@@ -23,10 +24,9 @@ import Constants from 'expo-constants';
 import SongOptions from './context/Options';
 import MarqueeText from 'react-native-marquee';
 import { BlurView } from 'expo-blur';
-
-
+import * as Animatable from 'react-native-animatable';
 // definition of the Item, which will be rendered in the FlatList
-const Item = ({ title, album, artist, full_image, setModalVisible }) => {
+const SongItem = ({ title, album, artist, full_image, setModalVisible }) => {
     return (
         <KeyboardAvoidingView style={styles.item}>
             <Image
@@ -65,13 +65,47 @@ const Item = ({ title, album, artist, full_image, setModalVisible }) => {
     )
 };
 
-const List = (props) => {
-    const [modalVisible, setModalVisible] = useState({visible: false, img: null});
+const ArtistItem = ({ title, full_image, songs, setModalVisible }) => {
+    return (
+        <KeyboardAvoidingView style={styles.item}>
+            <Image
+                style={{ width: 50, height: 50, padding: 10, marginTop: 5, borderRadius:7 }}
+                source={{ uri: full_image }}
+                onPress={() => {
+                    setModalVisible({visible: true, img: full_image});
+                }}
+            />
+            <View style={styles.artist_details}>
+                <MarqueeText 
+                    speed={0.4} 
+                    marqueeOnStart={true}
+                    loop={true}
+                    delay={1000}
+                    style={ { ...styles.title, fontSize: 18 } }
+                >
+                    {title}
+                </MarqueeText>
+            </View>
+            
+        </KeyboardAvoidingView>
+    )
+};
+
+const ExpansionPanel = ({type, artistItem, props}) => {
+    const [expanded, setExpanded] = useState(false);
 
     const renderItem = ({ item }) => {
         return (
-            <SafeAreaView  keyboardShouldPersistTaps='handled'  style={styles.song_detail_view}>
-                <Item 
+            <SafeAreaView  keyboardShouldPersistTaps='handled'  style={
+                    {
+                        ...styles.song_detail_view,
+                        width: moderateScale(300 - 20),
+                        marginLeft: moderateScale(10),
+                        marginRight: moderateScale(10),
+                        backgroundColor: 'rgba(0,0,0,0.1)'
+                    }
+                }>
+                <SongItem 
                     title={item.title} 
                     album={item.album ? item.album : ''} 
                     artist={item.primary_artists ? item.primary_artists : ''} 
@@ -84,25 +118,121 @@ const List = (props) => {
             </SafeAreaView>
         );
     };
+        
+    return (
+        <SafeAreaView>
+            <SafeAreaView style={styles.expansion_panel__header}>
+                <TouchableOpacity style={styles.expansion_panel__header} onPress={() => {
+                    setExpanded(!expanded);
+                }}>
+                    { !expanded && 
+                        <Feather name='chevron-down' size={24} style={styles.expansion_icon}></Feather>
+                    }
+                    { expanded && 
+                        <Feather name='chevron-up' size={24} style={styles.expansion_icon}></Feather>
+                    }
+                </TouchableOpacity>
+            </SafeAreaView>
+            { expanded && 
+                <ScrollView keyboardShouldPersistTaps='always'
+                    nestedScrollEnabled={true}
+                    persistentScrollbar={true} 
+                    style={styles.expansion_panel__content}
+                >
+                    <FlatList style={styles.expansion_panel__content_list}
+                        data={artistItem.songs}
+                        renderItem={renderItem}
+                        keyExtractor={(item) => item.song_id }
+                    />
+                </ScrollView>
+            }
+        </SafeAreaView>
+    );
+    
+};
 
-    let modifiedData = props.data.filter((item) => {
-        return item.song_id != null;
-    }).map((item) => {
-        item.setModalVisible = setModalVisible;
-        return item;
-    });
+const List = (props) => {
+    const [modalVisible, setModalVisible] = useState({visible: false, img: null});
+    const [songList, setSongList] = useState([]);
+
+    const renderItem = ({ item }) => {
+        if (item.song_id) {
+            return (
+                <SafeAreaView  keyboardShouldPersistTaps='always'  style={styles.song_detail_view}>
+                    <SongItem 
+                        title={item.title} 
+                        album={item.album ? item.album : ''} 
+                        artist={item.primary_artists ? item.primary_artists : ''} 
+                        full_image={item.full_image}
+                        setModalVisible={item.setModalVisible} />
+                    <SongOptions 
+                        item={item} 
+                        snackbarProperties={props.snackbarProperties} 
+                        setSnackbarProperties={props.setSnackbarProperties} />
+                </SafeAreaView>
+            );
+        }
+        if (item.artist_id) {
+            return (
+                <SafeAreaView keyboardShouldPersistTaps='always'  style={styles.song_detail_view}>
+                    <ArtistItem 
+                        title={item.name} 
+                        full_image={item.full_image}
+                        songs={item.songs}
+                        setModalVisible={item.setModalVisible} />
+                    <ExpansionPanel
+                        type={'artist'}
+                        artistItem={item}
+                        props={props}
+                    ></ExpansionPanel>
+                </SafeAreaView>
+            );
+        }
+    };
+
+    useEffect(() => {
+        let modifiedData = [];
+        let tempData = props.data.map((item) => {
+            if (item.songs) {
+                item.songs = item.songs.slice(0, 4);
+                for (let songItem of item.songs) {
+                    songItem.setModalVisible = setModalVisible;
+                }
+            
+            }
+    
+            item.setModalVisible = setModalVisible;
+            return item;
+        });
+        for (let item of tempData) {
+            if (item.song_id) {
+                modifiedData.push(item);
+            }
+        }
+        for (let item of tempData) {
+            if (item.artist_id) {
+                modifiedData.push(item);
+            }
+        }
+        for (let item of tempData) {
+            if (item.album_id) {
+                modifiedData.push(item);
+            }
+        }
+        setSongList(modifiedData);
+    }, [props.setData]);
 
     return (
-        <ScrollView
+        <ScrollView nestedScrollEnabled={true} persistentScrollbar={true} keyboardShouldPersistTaps='always'
             onStartShouldSetResponder={() => {
                 props.setClicked(false);
             }}
             style={styles.list__container}>
 
             <FlatList
-                data={modifiedData}
+                data={songList}
                 renderItem={renderItem}
-                keyExtractor={(item) => item.song_id || item.album_id}
+                keyExtractor={(item) => item.song_id || item.album_id || item.artist_id }
             />
 
             <Modal
@@ -169,6 +299,13 @@ const styles = StyleSheet.create({
         paddingLeft: 10,
         width: moderateScale(300) - 60,
     },
+    artist_details: {
+        paddingRight: 5,
+        paddingLeft: 10,
+        width: moderateScale(300) - 60,
+        alignSelf: 'center',
+        alignContent: 'center'
+    },
     title: {
         color: '#fff',
         fontSize: 16,
@@ -210,4 +347,29 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         textAlign: 'center',
     },
+    expansion_panel__header: {
+        backgroundColor: 'rgba(0, 0, 0, 0.1)',
+        borderRadius: 5,
+        height: moderateScale(20)
+    },
+    expansion_icon: {
+        color: '#9c88ff',
+        size: 24,
+        alignContent: 'center',
+        alignSelf: 'center',
+    },
+    expansion_panel__content: {
+        height: moderateScale(200),
+        backgroundColor: 'rgba(0, 0, 0, 0.2)'
+    },
+    expansion_panel__content_list: {
+        display: "flex",
+        alignSelf: "flex-start",
+        paddingTop: 10,
+        backgroundColor: 'rgba(0, 0, 0, 0.1)',
+        overflow: 'scroll',
+        flex: 1,
+        height: moderateScale(200),
+
+    }
 });

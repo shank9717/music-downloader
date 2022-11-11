@@ -126,7 +126,9 @@ const SongOptions = (props) => {
     }
     
     return (
-        <ScrollView  keyboardShouldPersistTaps='handled' contentContainerStyle={styles.options_container}>
+        <ScrollView  
+            nestedScrollEnabled={true}
+            keyboardShouldPersistTaps='always' contentContainerStyle={styles.options_container}>
             <TouchableOpacity>
                 <Feather style={{ opacity: playBtnOpacity, color: playBtnColor }} name={modes[currentMode]} size={20} color="#9c88ff" onPress={() => {
                         if (playDisabled) {
