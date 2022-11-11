@@ -5,7 +5,8 @@ from music_downloader_module.module.api.saavn.saavn_api import Saavn
 
 def main():
     saavn_api = Saavn()
-    song = saavn_api.get_suggestions('let me down')
+    song = saavn_api.get_suggestions('logic')
+    print(song)
     # with open('download.txt', 'r') as f:
     #     song_list = f.readlines()
     # for song in song_list:

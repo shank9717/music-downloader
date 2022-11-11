@@ -10,6 +10,7 @@ from music_downloader_module.module.api.music_api import MusicApi
 from music_downloader_module.module.api.saavn import headers
 from music_downloader_module.module.models.album_model import Album
 from music_downloader_module.module.models.song_model import Song
+from music_downloader_module.module.models.artist_model import Artist
 
 
 class Saavn(MusicApi):
@@ -55,6 +56,25 @@ class Saavn(MusicApi):
         song_to_download = suggestions[choice - 1]
         return song_to_download
 
+    def get_detail_artist_info(self, artist_token_id: str) -> dict:
+        Saavn.logger.info(f'Searching for artist: {artist_token_id}...')
+        params = {
+            '__call': 'webapi.get',
+            'token': artist_token_id,
+            'type': 'artist',
+            'p': '0',
+            'n_song': '50',
+            'n_album': '50',
+            'sub_type': '',
+            'category': '',
+            'sort_order': '',
+            'includeMetaTags': '0',
+            **Saavn.common_api_params
+        }
+
+        response = self.session.get(Saavn.API_URL, headers=headers.api_headers, params=params)
+        return response.json()
+
     def get_detail_album_info(self, album_token_id: str) -> dict:
         Saavn.logger.info(f'Searching for album: {album_token_id}...')
         params = {
@@ -75,9 +95,20 @@ class Saavn(MusicApi):
             'query': f'{quote(prompt)}',
             **Saavn.common_api_params
         }
+        del params['api_version']
 
         response = self.session.get(Saavn.API_URL, headers=headers.api_headers, params=params)
         all_suggestions = []
+
+        artists: List[dict] = response.json()['artists']['data']
+        top_result = response.json()['topquery']['data'][0]
+        if 'type' in top_result and top_result['type'].lower() == 'artist':
+            artists.insert(0, top_result)
+
+        for obj in artists:
+            artist = self._parse_obj_as_artist(obj)
+            all_suggestions.append(artist)
+
         for obj in response.json()['albums']['data']:
             album = self._parse_obj_as_album(obj)
             all_suggestions.append(album)
@@ -155,6 +186,18 @@ class Saavn(MusicApi):
 
         self.session.get(Saavn.API_URL, headers=headers.api_headers, params=params)
 
+    def _parse_obj_as_artist(self, obj: dict) -> Artist:
+        token_id = self._get_token_id(obj)
+        updated_obj = self.get_detail_artist_info(token_id)
+        return Artist(
+            artist_id=updated_obj['artistId'],
+            token_id=token_id,
+            name=updated_obj['name'],
+            image=updated_obj['image'],
+            url=self.get_url(obj),
+            songs=self._get_songs_of_artist(updated_obj)
+        )
+
     def _parse_obj_as_album(self, obj: dict) -> Album:
         return Album(
             album_id=obj['id'],
@@ -163,7 +206,7 @@ class Saavn(MusicApi):
             image=obj['image'] if 'image' in obj else None,
             description=unescape(obj['description']) if 'description' in obj else None,
             artist=unescape(obj['more_info']['music']) if 'music' in obj['more_info'] else unescape(obj['music']),
-            url=self.get_album_url(obj),
+            url=self.get_url(obj),
             year=int(obj['more_info']['year']) if 'year' in obj['more_info'] else None,
             song_pids=self._get_all_pids(obj['more_info']['song_pids']) if 'song_pids' in obj['more_info'] else [],
             songs=self._get_songs(self._get_token_id(obj))
@@ -175,7 +218,7 @@ class Saavn(MusicApi):
             title=unescape(obj['title']),
             image=obj['image'] if 'image' in obj else None,
             album=unescape(obj['album']) if 'album' in obj else unescape(obj['more_info']['album']),
-            url=obj['url'] if 'url' in obj else obj['perma_url'],
+            url=self.get_url(obj),
             description=unescape(obj['description']) if 'description' in obj else unescape(obj['title']),
             primary_artists=self._get_primary_artist_from_song_obj(obj),
             singers=self._get_all_singers_from_song_obj(obj),
@@ -205,11 +248,11 @@ class Saavn(MusicApi):
         return album_songs
 
     def _get_token_id(self, obj: dict) -> str:
-        url = self.get_album_url(obj)
+        url = self.get_url(obj)
         return url.split('/')[-1]
 
     @staticmethod
-    def get_album_url(obj: dict) -> str:
+    def get_url(obj: dict) -> str:
         url = obj['perma_url'] if 'perma_url' in obj else obj['url']
         return url
 
@@ -237,3 +280,6 @@ class Saavn(MusicApi):
     @staticmethod
     def _get_all_pids(pids: str) -> List[str]:
         return [pid.strip() for pid in pids.split(',')]
+
+    def _get_songs_of_artist(self, obj: dict) -> List[Song]:
+        return [self._parse_obj_as_song(song_obj) for song_obj in obj['topSongs']]

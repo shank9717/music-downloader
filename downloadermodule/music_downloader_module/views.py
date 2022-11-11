@@ -3,7 +3,6 @@ import os
 from typing import List
 from wsgiref.util import FileWrapper
 from django.http import HttpRequest, HttpResponse, JsonResponse
-from django.shortcuts import render
 
 from music_downloader_module.module.models.music_obj_type import MusicObjectType
 from .module.api.music_api import MusicApi
