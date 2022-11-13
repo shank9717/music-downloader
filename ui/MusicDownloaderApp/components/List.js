@@ -85,6 +85,7 @@ const ArtistItem = ({ title, full_image, songs, setModalVisible }) => {
                 >
                     {title}
                 </MarqueeText>
+                <Text style={styles.subLabel}>Artist</Text>
             </View>
             
         </KeyboardAvoidingView>
@@ -94,9 +95,9 @@ const ArtistItem = ({ title, full_image, songs, setModalVisible }) => {
 const ExpansionPanel = ({type, artistItem, props}) => {
     const [expanded, setExpanded] = useState(false);
 
-    const renderItem = ({ item }) => {
+    const renderItem = ( item ) => {
         return (
-            <SafeAreaView  keyboardShouldPersistTaps='handled'  style={
+            <View key={ item.song_id } keyboardShouldPersistTaps='handled'  style={
                     {
                         ...styles.song_detail_view,
                         width: moderateScale(300 - 20),
@@ -115,13 +116,13 @@ const ExpansionPanel = ({type, artistItem, props}) => {
                     item={item} 
                     snackbarProperties={props.snackbarProperties} 
                     setSnackbarProperties={props.setSnackbarProperties} />
-            </SafeAreaView>
+            </View>
         );
     };
         
     return (
-        <SafeAreaView>
-            <SafeAreaView style={styles.expansion_panel__header}>
+        <View style={{ flex: 1, overflow: 'scroll' }}>
+            <View style={styles.expansion_panel__header}>
                 <TouchableOpacity style={styles.expansion_panel__header} onPress={() => {
                     setExpanded(!expanded);
                 }}>
@@ -132,21 +133,20 @@ const ExpansionPanel = ({type, artistItem, props}) => {
                         <Feather name='chevron-up' size={24} style={styles.expansion_icon}></Feather>
                     }
                 </TouchableOpacity>
-            </SafeAreaView>
-            { expanded && 
-                <ScrollView keyboardShouldPersistTaps='always'
+            </View>
+            { expanded &&
+                <ScrollView 
+                    scrollEnabled={true}
                     nestedScrollEnabled={true}
-                    persistentScrollbar={true} 
-                    style={styles.expansion_panel__content}
-                >
-                    <FlatList style={styles.expansion_panel__content_list}
-                        data={artistItem.songs}
-                        renderItem={renderItem}
-                        keyExtractor={(item) => item.song_id }
-                    />
-                </ScrollView>
+                    style={styles.expansion_panel__content_list}>
+                    {
+                        artistItem.songs.map((song) => {
+                            return renderItem(song);
+                        })
+                    }
+                </ScrollView> 
             }
-        </SafeAreaView>
+        </View>
     );
     
 };
@@ -174,7 +174,8 @@ const List = (props) => {
         }
         if (item.artist_id) {
             return (
-                <SafeAreaView keyboardShouldPersistTaps='always'  style={styles.song_detail_view}>
+                <View 
+                    keyboardShouldPersistTaps='always'  style={styles.song_detail_view}>
                     <ArtistItem 
                         title={item.name} 
                         full_image={item.full_image}
@@ -185,7 +186,7 @@ const List = (props) => {
                         artistItem={item}
                         props={props}
                     ></ExpansionPanel>
-                </SafeAreaView>
+                </View>
             );
         }
     };
@@ -194,7 +195,7 @@ const List = (props) => {
         let modifiedData = [];
         let tempData = props.data.map((item) => {
             if (item.songs) {
-                item.songs = item.songs.slice(0, 4);
+                item.songs = item.songs.slice(0, 10);
                 for (let songItem of item.songs) {
                     songItem.setModalVisible = setModalVisible;
                 }
@@ -223,13 +224,11 @@ const List = (props) => {
     }, [props.setData]);
 
     return (
-        <ScrollView nestedScrollEnabled={true} persistentScrollbar={true} keyboardShouldPersistTaps='always'
-            onStartShouldSetResponder={() => {
-                props.setClicked(false);
-            }}
-            style={styles.list__container}>
+        <View keyboardShouldPersistTaps='always' style={{flex: 1, overflow: 'scroll'}}>
 
             <FlatList
+                nestedScrollEnabled={true}
+                contentContainerStyle={styles.list_container}
                 data={songList}
                 renderItem={renderItem}
                 keyExtractor={(item) => item.song_id || item.album_id || item.artist_id }
@@ -260,7 +259,7 @@ const List = (props) => {
                     </BlurView>
                 </SafeAreaView>
             </Modal>
-        </ScrollView>
+        </View>
     );
 };
 
@@ -275,14 +274,12 @@ const styles = StyleSheet.create({
         borderWidth: 0.5,
         borderRadius: 5,
         alignSelf: 'center',
-        width: moderateScale(300),
+        flex: 1,
+        width: moderateScale(320),
     },
-    list__container: {
-        width: '100%',
-        height: "85%",
-        display: "flex",
-        alignSelf: "flex-start",
-        textAlign: "left"
+    list_container: {
+        // flex: 1,
+        overflow: 'scroll'
     },
     item: {
         overflow: 'hidden',
@@ -350,7 +347,7 @@ const styles = StyleSheet.create({
     expansion_panel__header: {
         backgroundColor: 'rgba(0, 0, 0, 0.1)',
         borderRadius: 5,
-        height: moderateScale(20)
+        height: moderateScale(22)
     },
     expansion_icon: {
         color: '#9c88ff',
@@ -359,17 +356,18 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
     },
     expansion_panel__content: {
-        height: moderateScale(200),
+        maxHeight: moderateScale(300),
         backgroundColor: 'rgba(0, 0, 0, 0.2)'
     },
     expansion_panel__content_list: {
-        display: "flex",
-        alignSelf: "flex-start",
+        flexDirection: "column",
         paddingTop: 10,
-        backgroundColor: 'rgba(0, 0, 0, 0.1)',
+        backgroundColor: 'rgba(0, 0, 0, 0.2)',
         overflow: 'scroll',
-        flex: 1,
-        height: moderateScale(200),
-
+        height: moderateScale(300),
+    },
+    subLabel: {
+        color: 'white',
+        fontSize: 12
     }
 });
