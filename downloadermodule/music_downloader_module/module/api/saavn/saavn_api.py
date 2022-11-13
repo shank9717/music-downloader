@@ -102,15 +102,20 @@ class Saavn(MusicApi):
 
         artists: List[dict] = response.json()['artists']['data']
         top_result = response.json()['topquery']['data'][0]
+        top_result_id = top_result['id']
         if 'type' in top_result and top_result['type'].lower() == 'artist':
             artists.insert(0, top_result)
 
         for obj in artists:
             artist = self._parse_obj_as_artist(obj)
+            if artist.artist_id == top_result_id:
+                artist.is_top_result = True
             all_suggestions.append(artist)
 
         for obj in response.json()['albums']['data']:
             album = self._parse_obj_as_album(obj)
+            if album.album_id == top_result_id:
+                album.is_top_result = True
             all_suggestions.append(album)
 
         for obj in response.json()['songs']['data']:
@@ -265,7 +270,7 @@ class Saavn(MusicApi):
         detailed_info = obj['more_info']
         if 'primary_artists' in detailed_info:
             return unescape(detailed_info['primary_artists'])
-        if 'artistMap' in detailed_info and 'primary_artists' in detailed_info['artistMap']:
+        if 'artistMap' in detailed_info and 'primary_artists' in detailed_info['artistMap'] and len(detailed_info['artistMap']['primary_artists']) > 0:
             return detailed_info['artistMap']['primary_artists'][0]['name']
 
     @staticmethod

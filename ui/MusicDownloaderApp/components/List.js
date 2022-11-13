@@ -25,7 +25,8 @@ import SongOptions from './context/Options';
 import MarqueeText from 'react-native-marquee';
 import { BlurView } from 'expo-blur';
 import * as Animatable from 'react-native-animatable';
-// definition of the Item, which will be rendered in the FlatList
+
+
 const SongItem = ({ title, album, artist, full_image, setModalVisible }) => {
     return (
         <KeyboardAvoidingView style={styles.item}>
@@ -65,7 +66,7 @@ const SongItem = ({ title, album, artist, full_image, setModalVisible }) => {
     )
 };
 
-const ArtistItem = ({ title, full_image, songs, setModalVisible }) => {
+const NonSongItem = ({ title, full_image, songs, type, setModalVisible }) => {
     return (
         <KeyboardAvoidingView style={styles.item}>
             <Image
@@ -85,19 +86,19 @@ const ArtistItem = ({ title, full_image, songs, setModalVisible }) => {
                 >
                     {title}
                 </MarqueeText>
-                <Text style={styles.subLabel}>Artist</Text>
+                <Text style={styles.subLabel}>{ type }</Text>
             </View>
             
         </KeyboardAvoidingView>
     )
 };
 
-const ExpansionPanel = ({type, artistItem, props}) => {
+const ExpansionPanel = ({type, artistAlbumItem, props}) => {
     const [expanded, setExpanded] = useState(false);
 
-    const renderItem = ( item ) => {
+    const renderItem = ( songItem, artistAlbumItem ) => {
         return (
-            <View key={ item.song_id } keyboardShouldPersistTaps='handled'  style={
+            <View key={ songItem.song_id } keyboardShouldPersistTaps='handled'  style={
                     {
                         ...styles.song_detail_view,
                         width: moderateScale(300 - 20),
@@ -107,13 +108,16 @@ const ExpansionPanel = ({type, artistItem, props}) => {
                     }
                 }>
                 <SongItem 
-                    title={item.title} 
-                    album={item.album ? item.album : ''} 
-                    artist={item.primary_artists ? item.primary_artists : ''} 
-                    full_image={item.full_image}
-                    setModalVisible={item.setModalVisible} />
+                    title={songItem.title} 
+                    album={songItem.album ? songItem.album : ''} 
+                    artist={songItem.primary_artists ? songItem.primary_artists : ''} 
+                    full_image={songItem.full_image}
+                    setModalVisible={songItem.setModalVisible} />
                 <SongOptions 
-                    item={item} 
+                    item={songItem} 
+                    parentItem={artistAlbumItem}
+                    currentPlaying={props.currentPlaying}
+                    setCurrentPlaying={props.setCurrentPlaying}
                     snackbarProperties={props.snackbarProperties} 
                     setSnackbarProperties={props.setSnackbarProperties} />
             </View>
@@ -140,8 +144,8 @@ const ExpansionPanel = ({type, artistItem, props}) => {
                     nestedScrollEnabled={true}
                     style={styles.expansion_panel__content_list}>
                     {
-                        artistItem.songs.map((song) => {
-                            return renderItem(song);
+                        artistAlbumItem.songs.map((song) => {
+                            return renderItem(song, artistAlbumItem);
                         })
                     }
                 </ScrollView> 
@@ -167,23 +171,27 @@ const List = (props) => {
                         setModalVisible={item.setModalVisible} />
                     <SongOptions 
                         item={item} 
+                        parentItem={null}
+                        currentPlaying={props.currentPlaying}
+                        setCurrentPlaying={props.setCurrentPlaying}
                         snackbarProperties={props.snackbarProperties} 
                         setSnackbarProperties={props.setSnackbarProperties} />
                 </SafeAreaView>
             );
         }
-        if (item.artist_id) {
+        {
             return (
                 <View 
                     keyboardShouldPersistTaps='always'  style={styles.song_detail_view}>
-                    <ArtistItem 
-                        title={item.name} 
+                    <NonSongItem 
+                        title={ item.name || item.title } 
                         full_image={item.full_image}
                         songs={item.songs}
+                        type={ item.type }
                         setModalVisible={item.setModalVisible} />
                     <ExpansionPanel
-                        type={'artist'}
-                        artistItem={item}
+                        type={ item.type }
+                        artistAlbumItem={item}
                         props={props}
                     ></ExpansionPanel>
                 </View>
@@ -192,36 +200,35 @@ const List = (props) => {
     };
 
     useEffect(() => {
-        let modifiedData = [];
-        let tempData = props.data.map((item) => {
-            if (item.songs) {
-                item.songs = item.songs.slice(0, 10);
-                for (let songItem of item.songs) {
-                    songItem.setModalVisible = setModalVisible;
+        if (props.data) {
+            let modifiedData = [];
+            let tempData: object[] = props.data.map((item) => {
+                if (item.songs) {
+                    item.songs = item.songs.slice(0, 10);
+                    for (let songItem of item.songs) {
+                        songItem.setModalVisible = setModalVisible;
+                    }
                 }
-            
-            }
-    
-            item.setModalVisible = setModalVisible;
-            return item;
-        });
-        for (let item of tempData) {
-            if (item.song_id) {
-                modifiedData.push(item);
-            }
+                item.setModalVisible = setModalVisible;
+                return item;
+            }).sort((a, b) => {
+                if (a.is_top_result) {
+                    return -1;
+                } 
+                if (b.is_top_result) {
+                    return 1;
+                } 
+                if (a.song_id) {
+                    return -1;
+                } 
+                if (b.song_id) {
+                    return 1;
+                } 
+                return 0;
+            });
+            setSongList(tempData);
         }
-        for (let item of tempData) {
-            if (item.artist_id) {
-                modifiedData.push(item);
-            }
-        }
-        for (let item of tempData) {
-            if (item.album_id) {
-                modifiedData.push(item);
-            }
-        }
-        setSongList(modifiedData);
-    }, [props.setData]);
+    }, [props.data]);
 
     return (
         <View keyboardShouldPersistTaps='always' style={{flex: 1, overflow: 'scroll'}}>
@@ -278,7 +285,6 @@ const styles = StyleSheet.create({
         width: moderateScale(320),
     },
     list_container: {
-        // flex: 1,
         overflow: 'scroll'
     },
     item: {
@@ -364,10 +370,12 @@ const styles = StyleSheet.create({
         paddingTop: 10,
         backgroundColor: 'rgba(0, 0, 0, 0.2)',
         overflow: 'scroll',
-        height: moderateScale(300),
+        maxHeight: moderateScale(300),
+        marginBottom: 10,
     },
     subLabel: {
         color: 'white',
+        fontFamily: 'Poppins-Light',
         fontSize: 12
     }
 });

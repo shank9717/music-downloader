@@ -29,11 +29,16 @@ const SongOptions = (props) => {
     const [sound, setSound] = React.useState();
     const [downloadInProgress, setDownloadInProgress] = React.useState(false);
     const [playDisabled, setPlayDisabled] = React.useState(props['item']['preview_url'] == null);
-
-    // setPlayDisabled();
-    // let playDisabled = true;
     const playBtnOpacity = playDisabled ? 0.5 : 1;
     const playBtnColor = playDisabled ? 'grey': '#9c88ff';
+
+    
+    const parentItem = props?.parentItem;
+    let parentId = '';
+    if (parentItem) {
+        parentId = parentItem.album_id || parentItem.artist_id;
+    }
+    const currentItemId = parentId + '_' + props['item']['song_id'];
 
     async function playSound() {
         const preview_url = props['item']['preview_url'];
@@ -46,8 +51,6 @@ const SongOptions = (props) => {
                 }
             });
         setSound(sound);
-
-        console.log('Playing Sound');
         sound.playAsync();
     }
 
@@ -56,8 +59,22 @@ const SongOptions = (props) => {
         ? () => {
             console.log('Unloading Sound');
             sound?.unloadAsync();
-        } : undefined;
+        } : () => {
+            props.setCurrentPlaying(currentItemId);
+        };
     }, [sound]);
+
+    useEffect(() => {
+        if (sound && props.currentPlaying != currentItemId) {
+            setMode(0);
+            setSound(null);
+        }
+    }, [props.currentPlaying]);
+
+    useEffect(() => {
+        setMode(0);
+        setSound(null);
+    }, [props.forcePause]);
 
     const blobToBase64 = async (blob) => {
         return new Promise((resolve, _) => {
@@ -89,6 +106,7 @@ const SongOptions = (props) => {
                 const permissions = await StorageAccessFramework.requestDirectoryPermissionsAsync('content://com.android.externalstorage.documents/tree/primary%3AMusic');
                 if (!permissions.granted) {
                     props.setSnackbarProperties({visible: true, text: 'No permissions provided to write to path'});
+                    setDownloadInProgress(false);
                     setTimeout(function () {
                         props.setSnackbarProperties({visible: false, text: ''});
                     }, 5000);
@@ -173,6 +191,8 @@ const SongOptions = (props) => {
                                     ]);
                                     if (userResponse) {
                                         downloadAndCopyFile();
+                                    } else {
+                                        setDownloadInProgress(false);
                                     }
                                 }               
                             }

@@ -12,6 +12,8 @@ class Album(MusicObjectType):
                  language: Optional[str] = None, year: Optional[int] = None,
                  song_pids: Optional[List[str]] = None, songs: Optional[List[Song]] = None,
                  genre: Optional[str] = None, preview_url: Optional[str] = None):
+        super().__init__()
+        self.type = 'Album'
         self.album_id = album_id
         self.token_id = token_id
         self.title = title

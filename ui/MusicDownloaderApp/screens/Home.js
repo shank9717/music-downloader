@@ -17,6 +17,7 @@ const Home = (props) => {
   const [resultData, setResultData] = useState([]);
   const [resultPresent, setResultPresent] = useState(false);
   const [snackbarProperties, setSnackbarProperties] = React.useState({visible: false, text: ''});
+  const [currentPlaying, setCurrentPlaying] = useState(null);
 
   return (
     <SafeAreaView style={styles.root}>
@@ -34,6 +35,8 @@ const Home = (props) => {
       {resultPresent && <List
         snackbarProperties={snackbarProperties}
         setSnackbarProperties={setSnackbarProperties}
+        currentPlaying={currentPlaying}
+        setCurrentPlaying={setCurrentPlaying}
         style={styles.list_view}
         searchPhrase={searchPhrase}
         data={resultData}

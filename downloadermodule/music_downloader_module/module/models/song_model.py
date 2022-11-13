@@ -34,6 +34,8 @@ class Song(MusicObjectType):
                  language: Optional[str] = None, encrypted_media_url: Optional[str] = None,
                  duration: Optional[int] = None, release_date: Optional[datetime.datetime] = None,
                  genre: Optional[str] = None, preview_url: Optional[str] = None):
+        super().__init__()
+        self.type = 'Song'
         self.song_id = song_id
         self.title = title
         self.image = image
