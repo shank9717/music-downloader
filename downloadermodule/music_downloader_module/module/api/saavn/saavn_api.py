@@ -101,8 +101,13 @@ class Saavn(MusicApi):
         all_suggestions = []
 
         artists: List[dict] = response.json()['artists']['data']
-        top_result = response.json()['topquery']['data'][0]
-        top_result_id = top_result['id']
+        top_result_list = response.json()['topquery']['data']
+        if top_result_list:
+            top_result = top_result_list[0]
+            top_result_id = top_result['id']
+        else:
+            top_result = {}
+            top_result_id = ''
         if 'type' in top_result and top_result['type'].lower() == 'artist':
             artists.insert(0, top_result)
 

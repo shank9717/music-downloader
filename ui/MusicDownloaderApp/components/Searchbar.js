@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback } from "react";
 import { StyleSheet, TextInput, View, Keyboard, Button, KeyboardAvoidingView, TouchableWithoutFeedback } from "react-native";
 import { Feather, Entypo } from "@expo/vector-icons";
 import { color } from "react-native-elements/dist/helpers";
@@ -6,6 +6,19 @@ import Constants from 'expo-constants';
 import { SafeAreaView } from "react-native";
 
 const SearchBar = (props) => {
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      if (props.searchPhrase === '') {
+        props.setResultData([]);
+        props.setResultPresent(false);
+      } else {
+        modifySearch(props.searchPhrase);
+      }
+    }, 800);
+
+    return () => clearTimeout(delayDebounceFn)
+  }, [props.searchPhrase])
   
   const modifySearch = async (searchedPhrase) => {
     let headers = new Headers();
@@ -18,8 +31,10 @@ const SearchBar = (props) => {
       {method: 'GET', headers: headers}
     );
     const data = await apiResponse.json();
-    return data;
+    props.setResultData(data);
+    props.setResultPresent(data.length != 0);
   };
+
 
   return (
     
@@ -41,24 +56,9 @@ const SearchBar = (props) => {
             style={styles.input}
             placeholder="Search for a song..."
             value={props.searchPhrase}
-            onChangeText={
-              async (searchedPhrase) => {
-                props.setSearchPhrase(searchedPhrase);
-                if (searchedPhrase === '') {
-                  props.setResultData([]);
-                  props.setResultPresent(false);
-                } else {
-                  let data = await modifySearch(searchedPhrase);
-                  props.setResultData(data);
-
-                  if (data.length == 0) {
-                    props.setResultPresent(false);
-                  } else {
-                    props.setResultPresent(true);
-                  }
-                }
-              }
-            }
+            onChangeText={(searchedPhrase) => {
+              props.setSearchPhrase(searchedPhrase);
+            }}
             placeholderTextColor='#808c8c'
             cursorColor={'#fff'}
             color='#fff'
