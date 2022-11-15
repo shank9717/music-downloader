@@ -4,4 +4,4 @@ Easily search for songs, artists or albums and download high quality music with 
 
 ## Usage Preview
 
-[![App Preview][(http://img.youtube.com/vi/V5Dhrm1C1UU/0.jpg](https://img.youtube.com/vi/V5Dhrm1C1UU/hqdefault.jpg))](http://www.youtube.com/watch?v=V5Dhrm1C1UU)
+[![App Preview](http://img.youtube.com/vi/V5Dhrm1C1UU/hqdefault.jpg)](http://www.youtube.com/watch?v=V5Dhrm1C1UU)
