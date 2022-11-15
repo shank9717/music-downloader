@@ -1,4 +1,4 @@
-# music-downloader
+# PlanckTune - Music Downloader
 
 Easily search for songs, artists or albums and download high quality music with album art and other metadata set (like album name, artist name, etc). 
 
