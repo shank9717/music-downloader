@@ -9,9 +9,10 @@ from typing import Optional, List, Tuple
 
 import requests
 from PIL import Image
+from lyricsgenius import Genius
 from moviepy.editor import AudioFileClip
 from mutagen.easyid3 import EasyID3
-from mutagen.id3 import ID3, APIC
+from mutagen.id3 import ID3, APIC, USLT
 from mutagen.mp3 import MP3
 
 from music_downloader_module.module.api.music_api import MusicApi
@@ -51,6 +52,7 @@ class Song(MusicObjectType):
         self.release_date = release_date
         self.genre = genre
         self.preview_url = preview_url
+        self.lyrics_api = None
 
     def generate_download_url(self, music_api: MusicApi) -> str:
         return music_api.generate_download_url(self)
@@ -119,6 +121,22 @@ class Song(MusicObjectType):
         if self.genre:
             audio['genre'] = self.genre
         audio.save()
+
+        self.add_lyrics(file)
+
+    def add_lyrics(self, file: str) -> None:
+        try:
+            if self.lyrics_api is None:
+                self.lyrics_api = Genius(os.getenv("GENIUS_ACCESS_TOKEN"))
+            search_result = self.lyrics_api.search_song(self.title, self.primary_artists)
+            lyrics = search_result.lyrics
+            lyrics = 'Lyrics'.join(lyrics.split('Lyrics')[1:])
+            lyrics = 'Embed'.join(lyrics.split('Embed')[:-1])
+            tags = ID3(file)
+            tags[u"USLT::'eng'"] = USLT(encoding=3, lang=u'eng', desc=u'desc', text=lyrics)
+            tags.save(file)
+        except:
+            logging.error('Unable to set lyrics')
 
     @contextmanager
     def get_image(self) -> Image:
