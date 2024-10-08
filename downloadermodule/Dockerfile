@@ -1,5 +1,7 @@
 # base image  
-FROM python:3.8   
+ARG PYTHON_VERSION=3.8
+FROM --platform=linux/arm64 python:${PYTHON_VERSION} as build
+
 # setup environment variable  
 ENV DockerHOME=/home/app/webapp  
 
