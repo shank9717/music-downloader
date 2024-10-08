@@ -1,6 +1,6 @@
 import "dotenv/config";
 
-const API_URL = process.env["API_URL"] || "http://shankquest:8000";
+const API_URL = process.env["API_URL"] || "https://tunes.shankquest.org";
 const API_VERSION = process.env["API_VERSION"] || "1.0.0";
 const NODE_ENV = process.env["NODE_ENV"];
 
