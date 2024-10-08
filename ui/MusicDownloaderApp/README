@@ -1,0 +1,13 @@
+To build APK:
+
+`npm install -g eas-cli`
+`eas login`
+From ui/MusicDownloaderApp run `eas build -p android --profile preview`
+
+To debug run APK:
+
+Make sure Android Studio is installed - https://developer.android.com/studio/install
+Add adb.exe to PATH variable.
+Open Android Studio and setup SDK manager
+Open Virtual Device Manager and create virtual device
+From ui/MusicDownloaderApp run `npm run android`
