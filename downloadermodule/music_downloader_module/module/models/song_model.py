@@ -2,6 +2,7 @@ import datetime
 import logging
 import os
 import re
+import syncedlyrics
 import unicodedata
 from contextlib import contextmanager
 from io import BytesIO
@@ -12,7 +13,7 @@ from PIL import Image
 from lyricsgenius import Genius
 from moviepy.editor import AudioFileClip
 from mutagen.easyid3 import EasyID3
-from mutagen.id3 import ID3, APIC, USLT
+from mutagen.id3 import ID3, APIC, USLT, SYLT, Encoding
 from mutagen.mp3 import MP3
 
 from music_downloader_module.module.api.music_api import MusicApi
@@ -123,6 +124,7 @@ class Song(MusicObjectType):
         audio.save()
 
         self.add_lyrics(file)
+        self.add_synchronised_lyrics(file)
 
     def add_lyrics(self, file: str) -> None:
         try:
@@ -137,6 +139,17 @@ class Song(MusicObjectType):
             tags.save(file)
         except:
             logging.error('Unable to set lyrics')
+
+    def add_synchronised_lyrics(self, file: str) -> None:
+        try:
+            lrc = syncedlyrics.search(f'{self.title} {self.primary_artists}')
+            parsed_lyrics = self.parse_synced_lyrics(lrc)
+
+            tags = ID3(file)
+            tags.setall("SYLT", [SYLT(encoding=Encoding.UTF8, lang='eng', format=2, type=1, text=parsed_lyrics)])
+            tags.save(file)
+        except:
+            logging.error('Unable to set synced lyrics')
 
     @contextmanager
     def get_image(self) -> Image:
@@ -182,3 +195,20 @@ class Song(MusicObjectType):
 
     def to_json(self) -> dict:
         return self.__dict__
+
+    @staticmethod
+    def parse_synced_lyrics(lyrics: str):
+        sync_lrc = []
+        pattern = re.compile(r'\[(\d+):(\d+\.\d+)\] (.*)')
+
+        for line in lyrics.splitlines():
+            match = pattern.match(line)
+            if match:
+                minutes = int(match.group(1))
+                seconds = float(match.group(2))
+                text = match.group(3)
+
+                timestamp_ms = int((minutes * 60 + seconds) * 1000)
+                sync_lrc.append((text, timestamp_ms))
+
+        return sync_lrc

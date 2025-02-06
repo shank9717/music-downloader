@@ -2,7 +2,7 @@ version: "3.2"
 services:
     music-downloader-service:
         container_name: music-downloader-service
-        image: 'shashankullas/music-downloader:3.0.0'
+        image: 'shashankullas/music-downloader:4.0.0'
         restart: always
         env_file:
             - .env
