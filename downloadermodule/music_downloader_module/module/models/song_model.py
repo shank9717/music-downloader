@@ -41,7 +41,7 @@ class Song(MusicObjectType):
         self.song_id = song_id
         self.title = title
         self.image = image
-        self.full_image = re.sub(r'-\d{2,3}x\d{2,3}.(jpg|jpeg|png)', '-500x500.\\1', image)
+        self.full_image = None if not image else re.sub(r'-\d{2,3}x\d{2,3}.(jpg|jpeg|png)', '-500x500.\\1', image)
         self.album = album
         self.url = url
         self.description = description
@@ -141,6 +141,8 @@ class Song(MusicObjectType):
             logging.error('Unable to set lyrics')
 
     def add_synchronised_lyrics(self, file: str) -> None:
+        parsed_lyrics = None
+        lrc = None
         try:
             lrc = syncedlyrics.search(f'{self.title} {self.primary_artists}')
             parsed_lyrics = self.parse_synced_lyrics(lrc)
@@ -150,6 +152,16 @@ class Song(MusicObjectType):
             tags.save(file)
         except:
             logging.error('Unable to set synced lyrics')
+
+        try:
+            # syncedlyrics does it better than Genius, so use this to overwrite normal lyrics as well
+            if parsed_lyrics is not None and len(parsed_lyrics) > 10:
+                clean_lrc = self.strip_timestamps(lrc)
+                tags = ID3(file)
+                tags[u"USLT::'eng'"] = USLT(encoding=3, lang=u'eng', desc=u'desc', text=clean_lrc)
+                tags.save(file)
+        except:
+            logging.error('Unable to overwrite lyrics')
 
     @contextmanager
     def get_image(self) -> Image:
@@ -212,3 +224,28 @@ class Song(MusicObjectType):
                 sync_lrc.append((text, timestamp_ms))
 
         return sync_lrc
+
+    @staticmethod
+    def strip_timestamps(lyrics: str):
+        pattern = re.compile(r'\[\d+:\d+\.\d+\] (.*)')
+        stripped_lyrics = "\n".join(match.group(1) for line in lyrics.splitlines() if (match := pattern.match(line)))
+        return stripped_lyrics
+
+    @staticmethod
+    def from_mp3_file(file_path: str) -> Optional['Song']:
+        try:
+            audio = EasyID3(file_path)
+
+            title = audio.get('title')
+            primary_artists = audio.get('artist')
+            album = audio.get('album')
+            genre = audio.get('genre')
+
+            title = title[0] if title else None
+            primary_artists = primary_artists[0] if primary_artists else None
+            album = album[0] if album else None
+            genre = genre[0] if genre else None
+
+            return Song(title=title, primary_artists=primary_artists, album=album, genre=genre)
+        except:
+            return None

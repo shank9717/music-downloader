@@ -18,7 +18,7 @@ def get_most_relevant_song(request: HttpRequest, name: str) -> JsonResponse:
         song: Song = music_api.get_most_relevant_song(name)
         return JsonResponse(song.__dict__, safe=False)
 
-def get_suggestions(request: HttpRequest, prompt: str) -> JsonResponse:
+def get_suggestions(request: HttpRequest, prompt: str) -> HttpResponse:
     if request.method == 'GET':
         music_objs: List[MusicObjectType] = music_api.get_suggestions(prompt)
         if music_objs:
@@ -62,3 +62,6 @@ def download_song(request: HttpRequest) -> HttpResponse:
         response = HttpResponse()
         response['Content-Disposition'] = 'attachment'
         return response
+    
+def liveness(request: HttpRequest) -> HttpResponse:
+    return HttpResponse(status_code=200)
