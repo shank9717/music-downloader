@@ -64,4 +64,4 @@ def download_song(request: HttpRequest) -> HttpResponse:
         return response
     
 def liveness(request: HttpRequest) -> HttpResponse:
-    return HttpResponse(status_code=200)
+    return HttpResponse(status=200)
