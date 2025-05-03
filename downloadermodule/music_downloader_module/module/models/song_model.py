@@ -123,45 +123,19 @@ class Song(MusicObjectType):
             audio['genre'] = self.genre
         audio.save()
 
-        self.add_lyrics(file)
-        self.add_synchronised_lyrics(file)
+        self.set_lyrics(file)
 
-    def add_lyrics(self, file: str) -> None:
-        try:
-            if self.lyrics_api is None:
-                self.lyrics_api = Genius(os.getenv("GENIUS_ACCESS_TOKEN"))
-            search_result = self.lyrics_api.search_song(self.title, self.primary_artists)
-            lyrics = search_result.lyrics
-            lyrics = 'Lyrics'.join(lyrics.split('Lyrics')[1:])
-            lyrics = 'Embed'.join(lyrics.split('Embed')[:-1])
-            tags = ID3(file)
-            tags[u"USLT::'eng'"] = USLT(encoding=3, lang=u'eng', desc=u'desc', text=lyrics)
-            tags.save(file)
-        except:
-            logging.error('Unable to set lyrics')
-
-    def add_synchronised_lyrics(self, file: str) -> None:
-        parsed_lyrics = None
-        lrc = None
+    def set_lyrics(self, file: str) -> None:
         try:
             lrc = syncedlyrics.search(f'{self.title} {self.primary_artists}')
             parsed_lyrics = self.parse_synced_lyrics(lrc)
-
+            non_sync_lyrics = self.concatenate_slrt_lyrics(lrc)
             tags = ID3(file)
             tags.setall("SYLT", [SYLT(encoding=Encoding.UTF8, lang='eng', format=2, type=1, text=parsed_lyrics)])
+            tags[u"USLT::'eng'"] = USLT(encoding=3, lang=u'eng', desc=u'desc', text=non_sync_lyrics)
             tags.save(file)
         except:
             logging.error('Unable to set synced lyrics')
-
-        try:
-            # syncedlyrics does it better than Genius, so use this to overwrite normal lyrics as well
-            if parsed_lyrics is not None and len(parsed_lyrics) > 10:
-                clean_lrc = self.strip_timestamps(lrc)
-                tags = ID3(file)
-                tags[u"USLT::'eng'"] = USLT(encoding=3, lang=u'eng', desc=u'desc', text=clean_lrc)
-                tags.save(file)
-        except:
-            logging.error('Unable to overwrite lyrics')
 
     @contextmanager
     def get_image(self) -> Image:
@@ -249,3 +223,9 @@ class Song(MusicObjectType):
             return Song(title=title, primary_artists=primary_artists, album=album, genre=genre)
         except:
             return None
+
+    @staticmethod
+    def concatenate_slrt_lyrics(lyrics: str):
+        pattern = re.compile(r'\[\d+:\d+\.\d+\] (.*)')
+        stripped_lyrics = "\n".join(match.group(1) for line in lyrics.splitlines() if (match := pattern.match(line)))
+        return stripped_lyrics
