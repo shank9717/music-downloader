@@ -24,7 +24,7 @@ def get_suggestions(request: HttpRequest, prompt: str) -> HttpResponse:
         if music_objs:
             return JsonResponse([music_obj.to_json() for music_obj in music_objs], safe=False)
         else:
-            return JsonResponse([])
+            return JsonResponse([], safe=False)
     elif request.method == 'OPTIONS':
         response = HttpResponse()
         response['Content-Type'] = 'application/json'
