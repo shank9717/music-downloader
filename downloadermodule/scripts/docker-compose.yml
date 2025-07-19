@@ -3,11 +3,10 @@ services:
     music-downloader-service:
         container_name: music-downloader-service
         image: 'shashankullas/music-downloader:4.0.2'
+        network_mode: host
         restart: always
         env_file:
             - .env
-        ports:
-          - 8000:8000
         healthcheck:
             test: ["CMD", "curl", "-f", "https://tunes.shankquest.org/liveness"]
             interval: 30s
