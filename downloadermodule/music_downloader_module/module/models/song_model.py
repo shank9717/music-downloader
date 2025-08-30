@@ -2,23 +2,20 @@ import datetime
 import logging
 import os
 import re
-import syncedlyrics
-import unicodedata
 from contextlib import contextmanager
 from io import BytesIO
 from typing import Optional, List, Tuple
 
 import requests
+import syncedlyrics
+import unicodedata
 from PIL import Image
-from lyricsgenius import Genius
 from moviepy.editor import AudioFileClip
+from music_downloader_module.module.api.music_api import MusicApi
+from music_downloader_module.module.models.music_obj_type import MusicObjectType
 from mutagen.easyid3 import EasyID3
 from mutagen.id3 import ID3, APIC, USLT, SYLT, Encoding
 from mutagen.mp3 import MP3
-
-from music_downloader_module.module.api.music_api import MusicApi
-
-from music_downloader_module.module.models.music_obj_type import MusicObjectType
 
 
 def create_folder_if_not_exist(folder_name: str) -> None:
@@ -87,10 +84,21 @@ class Song(MusicObjectType):
         return os.path.abspath(new_path)
 
     def get_song_data(self, music_api: MusicApi, file_name: Optional[str] = None) -> Tuple[str, requests.Response]:
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:142.0) Gecko/20100101 Firefox/142.0',
+            'Accept': 'audio/webm,audio/ogg,audio/wav,audio/*;q=0.9,application/ogg;q=0.7,video/*;q=0.6,*/*;q=0.5',
+            'Accept-Language': 'en-US,en;q=0.5',
+            'Referer': 'https://www.jiosaavn.com/',
+            'Connection': 'keep-alive',
+            'Sec-Fetch-Dest': 'audio',
+            'Sec-Fetch-Mode': 'no-cors',
+            'Sec-Fetch-Site': 'cross-site',
+        }
+
         url = self.generate_download_url(music_api)
         file_name = file_name if file_name else self._get_mp4_file_name()
         download_file_path = os.path.join(Song.DOWNLOAD_PATH, file_name)
-        song_data = requests.get(url)
+        song_data = requests.get(url, headers=headers)
         return download_file_path, song_data
 
     def _set_metadata(self, file: str) -> None:

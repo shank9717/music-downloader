@@ -20,11 +20,15 @@ RUN pip install --upgrade pip
 RUN pip install weasyprint
 RUN apt install libpango-1.0-0 libharfbuzz0b libpangoft2-1.0-0
 
-# copy whole project to your docker home directory. 
+# copy requirements first to leverage Docker cache
+COPY requirements.txt $DockerHOME/
+
+# install python dependencies
+RUN pip install -r requirements.txt
+
+# copy whole project to your docker home directory.
 COPY . $DockerHOME  
-# run this command to install all dependencies  
-RUN pip install -r requirements.txt  
-# port where the Django app runs  
+# port where the Django app runs
 EXPOSE 8000  
 # start server  
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
